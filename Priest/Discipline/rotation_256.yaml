@@ -205,7 +205,7 @@ lists:
     - shadow_word_pain.mouseover,if=config.MO_shadow_word_pain&mouseover.enemy&mouseover.alive&mouseover.debuff.remains(shadow_word_pain)<=0&config.allow_pull_with_mo    
     - target_mouseover,if=config.allow_pull_with_mo&!target.exists&mouseover.enemy
     - return,if=!player.combat&active_enemies=0
-    - target_enemy,if=!target.valid&active_enemies>0&config.auto_targeting
+    - target_enemy,if=!target.exists&config.auto_targeting
     - call_action_list,name=pain_suppression_logic
     - call_action_list,name=moving,if=player.moving
     - call_action_list,name=high_prio
