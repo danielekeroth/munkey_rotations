@@ -6,6 +6,10 @@ config:
     label: "Auto-target if no target"
     type: checkbox
     default: true
+  allow_pull_with_mo:
+    label: "Pull with MO"
+    type: checkbox
+    default: false
   pain_suppression_threshold:
     label: Pain Suppression %
     type: slider
@@ -158,9 +162,10 @@ lists:
     - penance,cycle=members,if=health.pct<config.OOC_penance_treshold&!player.combat
   offensive:
     - shadow_word_pain,if=debuff.shadow_word_pain.remains<=0
-    - penance,if=cooldown.penance.charges=2|cooldown.penance.full_recharge_time<1.6|buff.power_of_the_dark_side.up|!cooldown.mind_blast.ready
+    - penance,if=cooldown.penance.charges=2|buff.power_of_the_dark_side.up|!cooldown.mind_blast.ready
     - mind_blast
-    - shadow_word_death,if=health.pct>config.SWD_usage_treshhold&target.health.pct<=20
+    - shadow_word_death,if=health.pct>config.SWD_usage_treshhold&(target.health.pct<=20|talent.void_blast)
+    - void_blast,override=smite,if=talent.void_blast&buff.entropic_rift.up
     - smite
   high_prio:
     - ultimate_penitence,if=group.under_pct_50>=config.ultimate_penitence_members
@@ -176,8 +181,8 @@ lists:
     - call_action_list,name=living_silk,if=var.trinket_living_silk
   moving:
     - penance,cycle=members,if=health.pct<70&!var.hold_penance
-    - power_word_shield,cycle=members,if=!buff.power_word_shield.up&!buff.atonement.up&var.weal_and_woe_stacks=config.weal_and_woe_min_stacks
-    - power_word_shield,cycle=members,if=!buff.power_word_shield.up&var.weal_and_woe_stacks=config.weal_and_woe_min_stacks
+    - power_word_shield,cycle=members,if=!buff.power_word_shield.up&!buff.atonement.up&(var.weal_and_woe_stacks=config.weal_and_woe_min_stacks|talent.void_blast)
+    - power_word_shield,cycle=members,if=!buff.power_word_shield.up&(var.weal_and_woe_stacks=config.weal_and_woe_min_stacks|talent.void_blast)
     - flash_heal,cycle=members,if=!buff.atonement.up&var.surge_of_light_procced
     - flash_heal,cycle=members,if=var.surge_of_light_procced
   pain_suppression_logic:
@@ -187,8 +192,8 @@ lists:
   atonement_spread:
     - evangelism.player,if=var.missing_atonement>1
     - power_word_radiance.player,if=var.missing_atonement>1,delay=100
-    - power_word_shield,cycle=members,if=!buff.power_word_shield.up&!buff.atonement.up&var.weal_and_woe_stacks=config.weal_and_woe_min_stacks
-    - power_word_shield,cycle=members,if=!buff.power_word_shield.up&var.weal_and_woe_stacks=config.weal_and_woe_min_stacks
+    - power_word_shield,cycle=members,if=!buff.power_word_shield.up&!buff.atonement.up&(var.weal_and_woe_stacks=config.weal_and_woe_min_stacks|talent.void_blast)
+    - power_word_shield,cycle=members,if=!buff.power_word_shield.up&(var.weal_and_woe_stacks=config.weal_and_woe_min_stacks|talent.void_blast)
     - flash_heal,cycle=members,if=!buff.atonement.up&var.surge_of_light_procced
     - plea,cycle=members,if=!buff.atonement.up
   main:
@@ -196,8 +201,10 @@ lists:
     - call_action_list,name=spell_queue
     - call_action_list,name=out_of_combat
     - angelic_feather.player,if=var.use_af
+    - shadow_word_pain.mouseover,if=config.MO_shadow_word_pain&mouseover.enemy&mouseover.alive&mouseover.debuff.remains(shadow_word_pain)<=0&config.allow_pull_with_mo    
+    - target_mouseover,if=config.allow_pull_with_mo&!target.exists&mouseover.enemy
     - return,if=!player.combat&active_enemies=0
-    - target_enemy,if=!target.exists&active_enemies>0&config.auto_targeting
+    - target_enemy,if=!target.valid&active_enemies>0&config.auto_targeting
     - call_action_list,name=pain_suppression_logic
     - call_action_list,name=moving,if=player.moving
     - call_action_list,name=high_prio
