@@ -66,14 +66,14 @@ config:
     label: "Buffed WG HP% - Self"
     type: slider
     min: 1
-    max: 50
-    default: 50
+    max: 100
+    default: 80
   wg_shining_light_party_treshold:
     label: "Buffed WG HP% - Party"
     type: slider
     min: 1
-    max: 30
-    default: 30
+    max: 100
+    default: 80
   mo_interrupts:
     label: "MO Interrupt"
     type: checkbox
@@ -190,9 +190,9 @@ lists:
     - hammer_of_wrath,if=buff.avenging_wrath.up
     - judgment
   mouseover_enemy:
-    - hand_of_reckoning,if=mouseover.enemy&mouseover.targeting_party
-    - avengers_shield.mouseover
-    - divine_toll.mouseover
+    - hand_of_reckoning.mouseover,if=mouseover.enemy&mouseover.targeting_party&cooldown.hand_of_reckoning.ready
+    - avengers_shield.mouseover&cooldown.avengers_shield.ready
+    - divine_toll.mouseover&cooldown.divine_toll.ready
   mouseover_interrupt:
     - avengers_shield,if=config.mo_interrupts&interrupts.mouseover.ready
     - hammer_of_justice,if=config.mo_stun&interrupts.mouseover.stun.ready
@@ -212,8 +212,8 @@ lists:
     - blessed_hammer
   defensives:
     - guardian_of_ancient_kings,if=health.pct<config.guardian_kings_treshold
-    - ardent_defender,if=health.pct<config.ardent_defender_treshold
-    - divine_shield,if=health.pct<config.divine_shield_treshold&buff.ardent_defender.down
+    - ardent_defender,if=health.pct<config.ardent_defender_treshold&buff.guardian_of_ancient_kings.down
+    - divine_shield,if=health.pct<config.divine_shield_treshold&buff.ardent_defender.down&buff.guardian_of_ancient_kings.down&talent.final_stand
   shining_light:
     - word_of_glory.player,if=health.pct<config.wg_shining_light_self_treshold
     - word_of_glory,cycle=members,if=health.pct<config.wg_shining_light_party_treshold
@@ -243,5 +243,5 @@ lists:
     - call_action_list,name=defensives
     - call_action_list,name=mouseover_combat_res,if=target.enemy&mouseover.friendly&!mouseover.alive
     - call_action_list,name=emergency
+    - call_action_list,name=shining_light,if=buff.shining_light.up&group.lowest.health.pct<config.wg_shining_light_self_treshold<?config.wg_shining_light_party_treshold
     - call_action_list,name=rotation
-    - call_action_list,name=shining_light,if=buff.shining_light.up
