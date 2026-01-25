@@ -1,6 +1,8 @@
 version: 3
 entry: main
-
+morphs:
+  smite: void_blast
+  divine_toll: hammer_of_light
 config:
   auto_targeting:
     label: "Auto-target if no target"
@@ -166,7 +168,7 @@ lists:
     - penance,if=cooldown.penance.charges=2|buff.power_of_the_dark_side.up|!cooldown.mind_blast.ready
     - mind_blast
     - shadow_word_death,if=health.pct>config.SWD_usage_treshhold&(target.health.pct<=20|talent.void_blast)
-    - void_blast,override=smite,if=talent.void_blast&buff.entropic_rift.up
+    - void_blast,if=talent.void_blast&buff.entropic_rift.up
     - smite
   high_prio:
     - ultimate_penitence,if=group.under_pct_50>=config.ultimate_penitence_members
