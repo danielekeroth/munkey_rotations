@@ -1,0 +1,10 @@
+## Interface: 120000
+## Title: Munkey Rotations
+## Version: 1.0
+## Author: Munkey
+## AddonCompartmentFunc: ZAT_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: ZAT_OnAddonCompartmentEnter
+## IconAtlas: TaskPOI-Icon
+## Category-enUS: SimiaExtensions
+
+SpellDataExtension.lua

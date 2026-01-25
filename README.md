@@ -2,6 +2,9 @@
 
 Real-life optimized rotations for World of Warcraft that go beyond simple priority lists. Our rotations are designed with extensive customization options and intelligent decision-making to adapt to actual gameplay scenarios.
 
+*** PLEASE NOTE THAT SOME FEATURES / ROTATIONS MAY REQUIRE THE MUNKEY ROTATIONS ADDON INSIDE THE ADDON FOLDER ***
+*** IF YOU EXPERIENCE ANY ISSUES PLEASE DOWNLOAD THE ADDON AND TRY AGAIN BEFORE REPORTING THEM ***
+
 ## Quick Links
 - 🚀 [Getting Started](#getting-started)
 - 🐛 [Bug Report Template](BUG_REPORT_EXAMPLE.md)
@@ -20,18 +23,22 @@ Traditional rotations often rely on static priority lists that don't account for
 | Class | Specialization | Features |
 |-------|---------------|----------|
 | Priest | Discipline | Complete healing rotation with Atonement management, smart cooldowns, mouseover support |
-| Paladin | Protection | Full tanking rotation with defensive management, emergency healing, interrupt handling |
+
+### 🧪 Testers Needed
+| Class | Specialization | Status | ETA |
+|-------|---------------|--------|-----|
+| Paladin | Protection | Testing | 2026-01-28 | 
+| Paladin | Holy | Testing | 2026-01-28 | 
 
 ### 🚧 In Development
 | Class | Specialization | Status | ETA |
 |-------|---------------|--------|-----|
-| Druid | Feral | Alpha | 2026-01-26 |
+| Druid | Feral | Alpha | 2026-01-30 |
+| Rogue | Outlaw | Alpha | 2026-01-30 |
 
 ### 📋 Planned
 | Class | Specialization | Priority |
 |-------|---------------|----------|
-| Rogue | Outlaw | HIGH |
-| Paladin | Holy | HIGH |
 | Paladin | Retribution | MEDIUM |
 | Priest | Shadow | MEDIUM |
 

@@ -7,7 +7,7 @@ description: This is a basic rotation for Discipline Priest
 entry: main
 morphs:
   smite: void_blast
-  divine_toll: hammer_of_light
+
 config:
   auto_targeting:
     label: "Auto-target if no target"

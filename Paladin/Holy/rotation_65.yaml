@@ -1,0 +1,152 @@
+version: 1
+entry: main
+
+config:
+  living_silk_usage:
+    label: "Living Silk usage"
+    type: dropdown
+    options:
+      - label: "On Cooldown"
+        value: 1
+      - label: "X Members below percentage"
+        value: 2
+      - label: "Do not use"
+        value: 3
+    default: 1
+  living_silk_members_treshold:
+    label: "Living Silk Members"
+    type: slider
+    min: 1
+    max: 5
+    default: 3
+  living_silk_percentage_treshold:
+    label: "Living Silk %"
+    type: dropdown
+    options:
+      - label: "30%"
+        value: 1
+      - label: "50%"
+        value: 2
+      - label: "75%"
+        value: 3
+      - label: "80%"
+        value: 4
+      - label: "85%"
+        value: 5
+      - label: "90%"
+        value: 6
+  loh_treshold:
+    label: "LoH Treshold"
+    type: slider
+    min: 1
+    max: 100
+    default: 15
+  loh_mo_treshold:
+    label: "LoH Mouseover Treshold"
+    type: slider
+    min: 1
+    max: 100
+    default: 20
+  loh_mouseover:
+    label: "LoH Mouseover"
+    type: checkbox
+    default: true
+  bos_mouseover:
+    label: "BoS Mouseover"
+    type: checkbox
+    default: true
+  bos_self_treshold:
+    label: "BoS Self Treshold"
+    type: slider
+    min: 1
+    max: 100
+    default: 80
+  bos_mouseover_treshold:
+    label: "BoS Mouseover Treshold"
+    type: slider
+    min: 1
+    max: 100
+    default: 30
+  bop_mouseover:
+    label: "BoP Mouseover"
+    type: checkbox
+    default: true
+  bop_mouseover_treshold:
+    label: "BoP Mouseover Treshold"
+    type: slider
+    min: 1
+    max: 100
+    default: 20
+  auto_res_ooc:
+    label: "Auto Res OOC"
+    type: checkbox
+    default: true
+
+variables:
+  emp_legacy_procc: buff.empyrean_legacy.up
+  should_use_eternal_flame: (!player.inraid&group.count(cycle.health.pct<80)<5)|buff.empyrean_legacy.up
+  should_use_light_of_dawn: (player.inraid|group.count(cycle.health.pct<80)>=5)|buff.empyrean_legacy.up
+  group_members: group.count(1=1)
+  all_healthy: group.count(cycle.health.pct<85)=var.group_members
+  dead_members: group.count(cycle.dead)
+  trinket1_living_silk: trinket_1.id=242393
+  trinket2_living_silk: trinket_2.id=242393
+  trinket_living_silk: var.trinket1_living_silk|var.trinket2_living_silk
+  living_silk_treshold_trigger: config.living_silk_usage=2&((config.living_silk_percentage_treshold=1&group.under_pct_30>=config.living_silk_members_treshold)|(config.living_silk_percentage_treshold=2&group.under_pct_50>=config.living_silk_members_treshold)|(config.living_silk_percentage_treshold=3&group.under_pct_75>=config.living_silk_members_treshold)|(config.living_silk_percentage_treshold=4&group.under_pct_80>=config.living_silk_members_treshold)|(config.living_silk_percentage_treshold=5&group.under_pct_85>=config.living_silk_members_treshold)|(config.living_silk_percentage_treshold=6&group.under_pct_90>=config.living_silk_members_treshold))
+
+lists:
+  auto_res_ooc:
+    - ressurect,cycle=members,if=cycle.dead&var.dead_members=1
+    - absolution,if=var.dead_members>1
+  mouseover:
+    - lay_on_hands.mouseover,if=config.loh_mouseover&mouseover.health.pct<config.loh_mo_treshold&mouseover.range<=40
+    - blessing_of_sacrifice.mouseover,if=config.bos_mouseover&mouseover.health.pct<config.bos_mouseover_treshold&mouseover.range<=40
+    - blessing_of_protection.mouseover,if=config.bop_mouseover&mouseover.health.pct<config.bop_mouseover_treshold&mouseover.range<=40
+    - intercession.mouseover,if=mouseover.range<=40&mouseover.dead
+  living_silk:
+    - trinket_1,if=var.trinket1_living_silk&trinket_1.cd=0&config.living_silk_usage!=3&((config.living_silk_usage=1)|var.living_silk_treshold_trigger)
+    - trinket_2,if=var.trinket2_living_silk&trinket_2.cd=0&config.living_silk_usage!=3&((config.living_silk_usage=1)|var.living_silk_treshold_trigger)
+  beacons:
+    - beacon_of_light.mouseover,if=mouseover.buff.remains(beacon_of_light)=0&mouseover.buff.remains(beacon_of_faith)=0&group.count(cycle.buff.beacon_of_light.up)=0
+    - beacon_of_faith.mouseover,if=mouseover.buff.remains(beacon_of_light)=0&mouseover.buff.remains(beacon_of_faith)=0&group.count(cycle.buff.beacon_of_faith.up)=0
+  spenders:
+    - shield_of_the_righteous,if=group.count(cycle.health.pct>95)=var.group_members
+    - eternal_flame,cycle=members,if=var.should_use_eternal_flame
+    - light_of_dawn.player,if=var.should_use_light_of_dawn
+  smart_aura:
+    - crusader_aura.player,if=player.mounted&buff.crusader_aura.down
+    - devotion_aura.player,if=!player.mounted&buff.devotion_aura.down
+    - concentration_aura.player,if=!player.mounted&buff.concentration_aura.down&!buff.devotion_aura.mine
+  emergency_heal:
+    - lay_on_hands,cycle=members,if=cycle.health.pct<15 # Cast lay on hands if 1 or more players have less than 15% health
+  living_silk:
+    - trinket_1,if=var.trinket1_living_silk&trinket_1.cd=0&config.living_silk_usage!=3&((config.living_silk_usage=1)|var.living_silk_treshold_trigger)
+    - trinket_2,if=var.trinket2_living_silk&trinket_2.cd=0&config.living_silk_usage!=3&((config.living_silk_usage=1)|var.living_silk_treshold_trigger)
+  combat:
+    - call_action_list,name=emergency_heal
+    - avenging_wrath
+    - aura_mastery,if=var.group_members=5&group.count(cycle.health.pct<70)>=3 # Cast aura mastery if 5 players have less than 70% health and grp size is 5
+    - aura_mastery,if=var.group_members>5&group.count(cycle.health.pct<70)>=10 # Cast aura mastery if more than 5 players have less than 70% health and grp size is more than 5
+    - eternal_flame,cycle=members,if=var.emp_legacy_procc # Cast eternal flame if emp. legacy procc
+    - call_action_list,name=spenders,if=holy_power=5|buff.divine_purpose.up|(holy_power=4&buff.infusion_of_light.up) # Cast spender if we have 5 holy power, Divine Purpose is up, or we have 4 holy power and Infusion of Light is up
+    - divine_toll,if=holy_power>=2&group.count(cycle.health.pct<80)=0 # Cast divine toll if we have less than or equal to 2 holy power and no players have less than 80% health
+    - divine_toll,cycle=members,if=player.holy_power>=2&cycle.health.pct<80 # Cast divine toll on lowest if we have less than or equal to2 holy power
+    - holy_light,cycle=members,if=cycle.health.pct<60&player.mana.pct<30&cooldown.holy_shock.charges=0&holy_power<=2 # Cast holy light if we have less than 2 holy power, 60% or less health, and 30% or less mana
+    - holy_shock,if=cooldown.holy_shock.charges=2&var.all_healthy # Cast holy shock if we have 2 holy power charges
+    - holy_shock,cycle=members,if=cooldown.holy_shock.charges=2 # Cast holy shock if we have 2 holy power charges
+    - judgment # Cast judgment as filler
+    - holy_shock,if=var.all_healthy # Cast holy shock as filler
+    - holy_shock,cycle=members # Cast holy shock if we have 2 holy power charges
+    - flash_of_light,target=lowest,if=group.count(cycle.health.pct<90)>=1 # Cast flash of light as filler
+  main:
+    - return,if=!state.rotation|state.blocked_inputs
+    - call_action_list,name=auto_res_ooc,if=config.auto_res_ooc&!player.combat
+    - call_action_list,name=smart_aura
+    - return,if=player.mounted
+    - call_action_list,name=beacons
+    - return,if=!player.combat
+    - blessing_of_freedom,if=player.rooted
+    - call_action_list,name=mouseover
+    - divine_protection,if=player.stunned&player.health.pct<=35
+    - call_action_list,name=living_silk,if=var.trinket_living_silk
+    - call_action_list,name=combat
