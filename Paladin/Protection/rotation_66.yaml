@@ -167,8 +167,8 @@ variables:
   defensives_available: cooldown.guardian_of_ancient_kings.ready|cooldown.ardent_defender.ready|(cooldown.divine_shield.ready&talent.final_stand)
   immunity_expires_within_1s: buff.divine_shield.remains<1|buff.blessing_of_protection.remains<1
   mo_in_range: mouseover.range>=config.mo_enemy_min_range&mouseover.range<=config.mo_enemy_max_range
-  target_casting_and_delay_elapsed: target.casting.interruptible&target.casting.target.casting.elapsed>config.interrupt_delay
-  should_interrupt: var.target_casting_and_delay_elapsed&(target.target.casting.important|!only_important_interrupts)
+  target_casting_and_delay_elapsed: target.casting.interruptible&target.casting.elapsed>config.interrupt_delay
+  should_interrupt: var.target_casting_and_delay_elapsed&(target.casting.important|!only_important_interrupts)
   hol_up: buff.hammer_of_light.up
   time_to_full_holy_power: player.gcd*(holy_power.max-holy_power)
   should_build: var.hol_up&var.time_to_full_holy_power<buff.hammer_of_light.up
@@ -191,8 +191,8 @@ lists:
     - judgment
   mouseover_enemy:
     - hand_of_reckoning.mouseover,if=mouseover.enemy&mouseover.targeting_party&cooldown.hand_of_reckoning.ready
-    - avengers_shield.mouseover&cooldown.avengers_shield.ready
-    - divine_toll.mouseover&cooldown.divine_toll.ready
+    - avengers_shield.mouseover,if=cooldown.avengers_shield.ready
+    - divine_toll.mouseover,if=cooldown.divine_toll.ready
   mouseover_interrupt:
     - avengers_shield,if=config.mo_interrupts&interrupts.mouseover.ready
     - hammer_of_justice,if=config.mo_stun&interrupts.mouseover.stun.ready
@@ -221,7 +221,7 @@ lists:
     - call_action_list,name=shining_light,if=buff.shining_light.up
     - word_of_glory.player,if=health.pct<config.wg_self_treshold&((config.only_if_no_defensives&!var.defensives_available)|(!config.only_if_no_defensives))&holy_power>3
     - word_of_glory,cycle=members,if=health.pct<config.wg_party_treshold&holy_power>3
-    - blessing_of_sacrifice,cycle=members,if=health.pct<config.bos_party_treshold&player.health.pct<config.bos_self_treshold
+    - blessing_of_sacrifice,cycle=members,if=health.pct<config.bos_party_treshold&player.health.pct<config.bos_self_treshold&range<
     - blessing_of_protection,cycle=members,if=health.pct<config.bop_party_treshold&player.health.pct<config.bop_self_treshold
     - lay_on_hands.player,if=health.pct<config.auto_loh_self_treshold&var.immunity_expires_within_1s
     - lay_on_hands,cycle=members,if=health.pct<config.auto_loh_party_treshold&player.health.pct<config.auto_loh_party_safeguard
@@ -233,6 +233,7 @@ lists:
     - return,if=!state.rotation
     - call_action_list,name=aura_management,if=config.auto_auras
     - return,if=player.mounted
+    - call_action_list,name=spell_queue
     - call_action_list,name=mouseover_enemy,if=mouseover.exists&mouseover.enemy&config.allow_pull_with_mo&var.mo_in_range
     - redemption,if=mouseover.exists&mouseover.friendly&!mouseover.alive&!player.combat
     - lay_on_hands,if=config.mo_loh&mouseover.exists&mouseover.friendly&mouseover.health.pct<config.mo_loh_treshold
@@ -242,6 +243,6 @@ lists:
     - call_action_list,name=mouseover_interrupt
     - call_action_list,name=defensives
     - call_action_list,name=mouseover_combat_res,if=target.enemy&mouseover.friendly&!mouseover.alive
-    - call_action_list,name=emergency
+    #- call_action_list,name=emergency
     - call_action_list,name=shining_light,if=buff.shining_light.up&group.lowest.health.pct<config.wg_shining_light_self_treshold<?config.wg_shining_light_party_treshold
     - call_action_list,name=rotation
