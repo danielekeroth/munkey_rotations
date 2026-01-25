@@ -216,15 +216,15 @@ lists:
     - divine_shield,if=health.pct<config.divine_shield_treshold&buff.ardent_defender.down&buff.guardian_of_ancient_kings.down&talent.final_stand
   shining_light:
     - word_of_glory.player,if=health.pct<config.wg_shining_light_self_treshold
-    - word_of_glory,cycle=members,if=health.pct<config.wg_shining_light_party_treshold
+    #- word_of_glory,cycle=members,if=health.pct<config.wg_shining_light_party_treshold
   emergency:
     - call_action_list,name=shining_light,if=buff.shining_light.up
     - word_of_glory.player,if=health.pct<config.wg_self_treshold&((config.only_if_no_defensives&!var.defensives_available)|(!config.only_if_no_defensives))&holy_power>3
-    - word_of_glory,cycle=members,if=health.pct<config.wg_party_treshold&holy_power>3
-    - blessing_of_sacrifice,cycle=members,if=health.pct<config.bos_party_treshold&player.health.pct<config.bos_self_treshold&range<
-    - blessing_of_protection,cycle=members,if=health.pct<config.bop_party_treshold&player.health.pct<config.bop_self_treshold
+    #- word_of_glory,cycle=members,if=health.pct<config.wg_party_treshold&holy_power>3
+    #- blessing_of_sacrifice,cycle=members,if=health.pct<config.bos_party_treshold&player.health.pct<config.bos_self_treshold
+    #- blessing_of_protection,cycle=members,if=health.pct<config.bop_party_treshold&player.health.pct<config.bop_self_treshold
     - lay_on_hands.player,if=health.pct<config.auto_loh_self_treshold&var.immunity_expires_within_1s
-    - lay_on_hands,cycle=members,if=health.pct<config.auto_loh_party_treshold&player.health.pct<config.auto_loh_party_safeguard
+    #- lay_on_hands,cycle=members,if=health.pct<config.auto_loh_party_treshold&player.health.pct<config.auto_loh_party_safeguard
   aura_management:
     - crusader_aura.player,if=player.mounted&buff.crusader_aura.down
     - devotion_aura.player,if=!player.mounted&buff.devotion_aura.down
