@@ -6,5 +6,8 @@
 ## AddonCompartmentFuncOnEnter: ZAT_OnAddonCompartmentEnter
 ## IconAtlas: TaskPOI-Icon
 ## Category-enUS: SimiaExtensions
+## SavedVariables: MunkeyRotationsDB
 
+# SpellDataExtension
 SpellDataExtension.lua
+

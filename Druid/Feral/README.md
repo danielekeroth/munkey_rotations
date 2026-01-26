@@ -177,9 +177,6 @@ A comprehensive World of Warcraft rotation for Feral Druids optimized for both s
 For issues, suggestions, or contributions, please refer to the main rotation library documentation and community resources.
 
 ## Requirements
-
-- World of Warcraft: The War Within expansion
-- Compatible rotation addon (WeakAuras, GSE, etc.)
 - Feral Druid specialization
 - Basic understanding of Feral Druid mechanics
 

@@ -12,9 +12,6 @@
 # ROOT-LEVEL SETTINGS
 # ----------------------------------------------------------------------------
 #
-# These settings are defined at the root level of the rotation file (not inside
-# any section). They affect the entire rotation.
-#
 # movement_allowed: EXPRESSION
 #   When this expression evaluates to true, all cast-time spells can be cast
 #   while moving. Use this for buffs like Ice Floes or Spiritwalker's Grace.
@@ -89,24 +86,24 @@
 #   stagger.pct
 
 # Available Resources:
-#   rage          - Warrior/Druid
-#   runic_power   - Death Knight
-#   rune          - Death Knight rune count
-#   energy        - Rogue/Monk/Feral Druid
-#   focus         - Hunter
-#   mana          - Casters
-#   combo_points  - Rogue/Feral Druid
-#   soul_shards   - Warlock (also: soul_shard)
-#   holy_power    - Paladin
-#   chi           - Monk
-#   insanity      - Shadow Priest
-#   stagger       - Brewmaster Monk (current stagger, max = max health)
-#   arcane_charges - Arcane Mage
-#   fury          - Demon Hunter
-#   pain          - Demon Hunter (Vengeance)
-#   maelstrom     - Enhancement Shaman
-#   astral_power  - Balance Druid (also: lunar_power)
-#   essence       - Evoker
+#   rage              - Warrior/Druid
+#   runic_power       - Death Knight
+#   rune              - Death Knight rune count
+#   energy            - Rogue/Monk/Feral Druid
+#   focus             - Hunter
+#   mana              - Casters
+#   combo_points      - Rogue/Feral Druid
+#   soul_shards       - Warlock (also: soul_shard)
+#   holy_power        - Paladin
+#   chi               - Monk
+#   insanity          - Shadow Priest
+#   stagger           - Brewmaster Monk (current stagger, max = max health)
+#   arcane_charges    - Arcane Mage
+#   fury              - Demon Hunter
+#   pain              - Demon Hunter (Vengeance)
+#   maelstrom         - Enhancement Shaman
+#   astral_power      - Balance Druid (also: lunar_power)
+#   essence           - Evoker
 
 actions:
 
@@ -134,38 +131,50 @@ actions:
 # ----------------------------------------------------------------------------
 # SECTION 3: HEALTH CONDITIONS
 # ----------------------------------------------------------------------------
+#
+# All units share the same health properties. Replace {unit} with:
+#   player, target, focus, mouseover, pet
+#
+# {unit}.health.current  - Current health value
+# {unit}.health.pct      - Health percentage (0-100)
+# {unit}.health.deficit  - Missing health amount (max - current)
+# {unit}.health.max      - Maximum health (player only)
+#
+# Player shortcuts (no prefix):
+#   health.current       - Alias for player.health.current
+#   health.pct           - Alias for player.health.pct
+#   health.deficit       - Alias for player.health.deficit
+#
+# Target-specific:
+#   target.range         - Distance to target in yards
+#   range                - Alias for target.range
+#   target.time_to_die   - Estimated seconds until target dies
+#   time_to_die          - Alias for target.time_to_die
+#   fight_remains        - Estimated time remaining in fight (based on nameplates)
 
-# Player Health:
-#   health           - Health percentage (alias for health.pct)
-#   health.pct       - Health percentage (0-100)
-#   health.max       - Maximum health value
-#   health.deficit   - Missing health amount
-#   player.hp        - Health percentage (alias)
-#   player.hp.max    - Maximum health
-#   player.hp.deficit - Missing health
-
-# Target Health:
-#   target.health       - Target health percentage
-#   target.health.pct   - Target health percentage
-#   target.hp           - Target health percentage (alias)
-#   target.time_to_die  - Estimated seconds until target dies
-#   time_to_die         - Alias for target.time_to_die
-#   fight_remains       - Estimated time remaining in fight
-
-# Player health below 30% - emergency heal
+# Player health - shortcut syntax
 - emergency_heal,if=health.pct<=30
 
-# Player health using player prefix
-- defensive_cooldown,if=player.hp<50
+# Player health - explicit unit prefix
+- defensive_cooldown,if=player.health.pct<50
 
-# Target health for execute abilities
+# Target health
 - execute_spell,if=target.health.pct<=20
 
-# Time to die checks for DoT application
-- long_dot,if=target.time_to_die>15
+# Focus/mouseover health - same syntax
+- focus_heal,if=focus.health.pct<50
+- mouseover_heal,if=mouseover.health.pct<80
 
-# Don't waste cooldowns if target dying soon
+# Pet health
+- mend_pet,if=pet.health.pct<40
+
+# Time to die checks
+- long_dot,if=target.time_to_die>15
 - big_cooldown,if=fight_remains>30
+
+# Range checks
+- melee_attack,if=range<8
+- charge,if=range>8&range<25
 
 # ----------------------------------------------------------------------------
 # SECTION 4: BUFF CONDITIONS
@@ -178,6 +187,7 @@ actions:
 #   .down        - Buff is NOT active
 #   .react       - Buff is active (same as .up)
 #   .remains     - Time remaining in seconds
+#   .elapsed     - Time since application in seconds
 #   .stack       - Current stack count
 #   .duration    - Base duration of the buff
 #   .refreshable - Buff can be refreshed (will expire soon)
@@ -189,8 +199,20 @@ actions:
 #   .poison      - Buff is Poison dispel type (see Section 5B)
 #   .icon        - Icon ID of the buff (see Section 5B)
 #
+# IMPORTANT: Source Filtering
+#   By default, buff.SPELL.* only checks buffs applied BY THE PLAYER.
+#   This means buff.renew.up returns true only if YOUR Renew is active.
+#
+#   To check buffs from ANY source (other players, NPCs, etc.), add .any:
+#     buff.SPELL.PROPERTY.any
+#
+#   Examples:
+#     buff.renew.up           - Your Renew is active (player-applied only)
+#     buff.renew.up.any       - Any Renew is active (from any source)
+#     buff.power_word_shield.remains.any  - Shield from any priest
+#
 # Notes:
-#   buff.SPELL.* checks the player by default (or the current cycle member in cycle=).
+#   buff.SPELL.* checks the player by default. Use cycle.buff.SPELL.* in cycle= conditions.
 #
 # Other unit buff checks use function-call syntax (no .up/.down):
 #   player.buff.remains(SPELL), player.buff.stacks(SPELL)
@@ -221,8 +243,14 @@ actions:
 # React to proc buffs
 - proc_consumer,if=buff.sudden_doom.react
 
-# Player buff check
+# Player buff check (your buff only)
 - spell,if=buff.bloodlust.up
+
+# Check if ANY source applied the buff (not just you)
+- skip_renew,if=buff.renew.up.any
+
+# Apply buff only if no one else has applied it
+- power_word_fortitude,if=buff.power_word_fortitude.down.any
 
 # ----------------------------------------------------------------------------
 # SECTION 5: DEBUFF CONDITIONS
@@ -232,9 +260,21 @@ actions:
 #
 # Properties:
 #   .up, .down, .ticking (alias of .up)
-#   .remains, .stack, .duration, .refreshable
+#   .remains, .elapsed, .stack, .duration, .refreshable
 #   .stealable, .mine, .magic, .curse, .disease, .poison, .icon
 #   (See Section 5B for details on these properties)
+#
+# IMPORTANT: Source Filtering
+#   By default, debuff.SPELL.* only checks debuffs applied BY THE PLAYER.
+#   This means debuff.rip.up returns true only if YOUR Rip is active.
+#
+#   To check debuffs from ANY source, add .any:
+#     debuff.SPELL.PROPERTY.any
+#
+#   Examples:
+#     debuff.rip.up           - Your Rip is active (player-applied only)
+#     debuff.rip.up.any       - Any Rip is active (from any feral druid)
+#     debuff.slow.remains.any - Any slow effect from any source
 #
 # Other unit debuff checks use function-call syntax:
 #   target.debuff.remains(SPELL), target.debuff.stacks(SPELL)
@@ -300,8 +340,8 @@ actions:
 # Check if a debuff on target was applied by you
 - pandemic_refresh,if=debuff.corruption.mine&debuff.corruption.remains<5
 
-# In cycle= context, buff.* checks the current member (useful for tracking your HoTs)
-- refresh_hot,cycle=members,if=buff.rejuvenation.mine&buff.rejuvenation.remains<3
+# In cycle= context, use cycle.buff.* for current member (useful for tracking your HoTs)
+- refresh_hot,cycle=members,if=cycle.buff.rejuvenation.mine&cycle.buff.rejuvenation.remains<3
 
 # ----------------------------------------------------------------------------
 # SECTION 5C: TARGET/PLAYER AURA DETECTION
@@ -325,6 +365,35 @@ actions:
 
 # Dispel any magic buff from target
 - dispel_magic_offensive,if=target.has_magic_buff
+
+# ----------------------------------------------------------------------------
+# SECTION 5D: DISPEL LIST
+# ----------------------------------------------------------------------------
+#
+# _dispeldata.yaml controls which debuffs/buffs are considered dispellable.
+#
+# dispel_spells: spell ID -> allowed types (Magic/Curse/Disease/Poison/Enrage)
+# dispel_list: debuff ID -> condition (string) or bool (true allow, false block)
+# - Missing from dispel_list: allowed
+# - false: blocked
+# - condition string: allowed only if condition is true
+#
+# Expressions:
+#   cycle.dispelable.SPELL      - Current cycle member has any dispellable debuff for SPELL
+#   cycle.dispelable.list.SPELL - Same, but applies dispel_list filtering rules
+#   target.dispelable.SPELL     - Target has any dispellable buff/enrage for SPELL
+#   target.dispelable.list.SPELL - Same, with dispel_list filtering rules
+#
+# Example _dispeldata.yaml:
+#   dispel_spells:
+#     4987: [Magic, Poison]  # Cleanse
+#   dispel_list:
+#     232452: "cycle.debuff.232452.elapsed.any>=3"
+#     389179: false
+#
+# Example usage:
+# - cleanse,cycle=members,if=cycle.dispelable.list.cleanse
+# - soothe,if=target.dispelable.soothe
 
 # Soothe enraged targets
 - soothe,if=target.has_enrage
@@ -358,6 +427,7 @@ actions:
 #   .duration    - Base duration
 #
 # Note: dot.X is essentially the same as debuff.X for target debuffs
+#       By default, only checks player-applied DoTs. Use .any for any source.
 
 # DoT is ticking
 - filler_spell,if=dot.corruption.ticking
@@ -370,7 +440,14 @@ actions:
 
 # Active DoT counter - count enemies with your DoT
 # Format: active_dot.SPELL_NAME
+#
+# IMPORTANT: By default, active_dot only counts YOUR DoTs (player-applied).
+#   active_dot.corruption     - Count of enemies with YOUR Corruption
+#   active_dot.corruption.any - Count of enemies with ANY Corruption (from any source)
 - aoe_spell,if=active_dot.corruption>=3
+
+# Check for any Corruption on enemies (not just yours)
+- spread_corruption,if=active_dot.corruption.any<active_enemies
 
 # ----------------------------------------------------------------------------
 # SECTION 7: COOLDOWN CONDITIONS
@@ -440,6 +517,9 @@ actions:
 # Each action step can have optional parameters that control when it executes.
 # Syntax: spell,OPTION=VALUE,if=condition
 #
+# SimC compatibility: options accept both underscore and no-underscore variants
+# (e.g., range_check or rangecheck).
+#
 # ============================================================================
 # range_check - Control range validation
 # ============================================================================
@@ -451,6 +531,15 @@ actions:
 #   mob_count_8y - Require at least 1 enemy within 8 yards
 #   mob_count_40y - Require at least 1 enemy within 40 yards
 #   none         - Skip all range checks (for self-buffs, ground targeting)
+#
+# AUTO-INFERENCE: range_check is automatically inferred from cast target suffix:
+#   .focus     -> range_check=focus
+#   .mouseover -> range_check=mouseover
+#   .player    -> range_check=none (self-cast)
+#   .cursor    -> range_check=none (ground-targeted)
+#   (none)     -> range_check=target (default)
+#
+# You can still override with explicit range_check=X if needed.
 
 # Default - requires target in range
 - attack_spell,if=target.exists
@@ -458,11 +547,14 @@ actions:
 # No range check needed for self-buff
 - self_buff,range_check=none,if=buff.my_buff.down
 
-# Ground-targeted spell at cursor
-- blizzard.cursor,range_check=none,if=active_enemies>=3
+# Ground-targeted spell at cursor (auto range_check=none)
+- blizzard.cursor,if=active_enemies>=3
 
-# Only cast if mouseover is in range
-- heal.mouseover,range_check=mouseover,if=mouseover.hp<80
+# Mouseover heal (auto range_check=mouseover from .mouseover suffix)
+- heal.mouseover,if=mouseover.health.pct<80
+
+# Focus interrupt (auto range_check=focus from .focus suffix)
+- pummel.focus,if=focus.casting.interruptible&focus.casting.remains<1
 
 # Require enemies nearby (melee range)
 - whirlwind,range_check=mob_count_8y,if=active_enemies>=2
@@ -607,11 +699,24 @@ actions:
 - some_spell,override=trinket_1,if=trinket_1.sync
 
 # ============================================================================
+# name - Override step display name (debug/lookup)
+# ============================================================================
+#
+# This sets the step name used in debug and step lookup. By default, it matches
+# the spell name.
+#
+# Example:
+# - lava_burst,name=burst_lava,if=buff.lava_surge.up
+
+# ============================================================================
 # global_delay/delay - Minimum time between presses (per-spell)
 # ============================================================================
 #
 # Sets minimum milliseconds between key presses for this specific spell.
 # Default global delay is 10ms. Use this for spells that shouldn't be spammed.
+#
+# delay: Per-action delay (only affects this specific action)
+# global_delay: Blocks ALL other spells for this duration (protects channels)
 #
 # Use cases:
 #   - Channeled spells (prevent interrupting channel)
@@ -622,7 +727,7 @@ actions:
 # Press this spell at most once per 100ms
 - channeled_spell,delay=100,if=condition
 
-# Press this spell with no delay, but every other gets a delay (until channel is true)
+# Press this spell with no delay, but block other spells for 100ms
 - channeled_spell,global_delay=100,if=condition
 
 
@@ -711,6 +816,17 @@ actions:
 - spell,if=player.prev_gcd_1(other_spell)
 
 # ----------------------------------------------------------------------------
+# SECTION 12B: LAST CAST TIME (lastcast.)
+# ----------------------------------------------------------------------------
+#
+# lastcast.SPELL_NAME - Seconds since last successful cast (9999 if never cast)
+# lastcast.SPELL_ID   - Same as above, using numeric ID
+#
+# Examples:
+# - fireball,if=lastcast.fireball>8
+# - pyroblast,if=lastcast.11366>12
+
+# ----------------------------------------------------------------------------
 # SECTION 13: PLAYER STATUS CONDITIONS
 # ----------------------------------------------------------------------------
 
@@ -721,8 +837,9 @@ actions:
 #   player.moving.time   - Seconds player has been moving
 #   player.standing      - Player is standing still
 #   player.standing.time - Seconds standing still
-#   player.mounted       - Player is mounted (currently always 0 until addon sends data)
-#   player.in_vehicle    - Player is in a vehicle (currently always 0 until addon sends data)
+#   player.mounted       - Player is mounted
+#   player.auto_attacking   - Player is auto-attacking
+#   player.in_vehicle    - Player is in a vehicle
 #   player.casting       - Player is casting
 #   player.channeling    - Player is channeling
 #   player.casting.spell - Currently casting spell ID (0 if not casting)
@@ -733,6 +850,11 @@ actions:
 #   player.combat        - Player is in combat
 #   player.combat.time   - Time in combat (seconds)
 #   player.empower_stage - Evoker empower stage (1-4)
+#
+# Short aliases (without player. prefix):
+#   dead, alive, moving, moving.time, standing, standing.time
+#   casting, channeling, casting.remains, casting.elapsed, casting.spell
+#   combat, combat.time, empower_stage, mounted, auto_attacking
 
 # Only cast when standing still
 - long_cast,if=!player.moving
@@ -785,6 +907,11 @@ actions:
 #   player.charmed       - Player is mind controlled
 #   player.disarmed      - Player is disarmed (cannot use weapons)
 #   player.cc            - Player cannot act (stunned, feared, charmed, possessed, confused, or incapacitated)
+#
+# Short aliases (without player. prefix):
+#   stunned, stunned.remains, stunned.elapsed
+#   rooted, rooted.remains, rooted.elapsed
+#   silenced, silenced.remains, silenced.elapsed
 
 # Remaining Duration Checks (returns seconds remaining):
 #   player.stunned.remains
@@ -794,6 +921,15 @@ actions:
 #   player.incapacitated.remains
 #   player.charmed.remains
 #   player.disarmed.remains
+#
+# Elapsed Duration Checks (returns seconds since CC started):
+#   player.stunned.elapsed
+#   player.rooted.elapsed
+#   player.feared.elapsed
+#   player.silenced.elapsed
+#   player.incapacitated.elapsed
+#   player.charmed.elapsed
+#   player.disarmed.elapsed
 
 # Use PvP trinket when stunned
 - pvp_trinket,if=player.stunned
@@ -843,10 +979,10 @@ actions:
 # ----------------------------------------------------------------------------
 
 # Character Stats (percentage values):
-#   player.haste_pct     - Haste percentage (also: player.haste)
-#   player.crit_pct      - Critical strike percentage (also: player.crit)
-#   player.versa_pct     - Versatility percentage (also: player.versatility)
-#   player.mastery_pct   - Mastery percentage (also: player.mastery)
+#   player.haste_pct     - Haste percentage (also: player.haste, haste, haste_pct)
+#   player.crit_pct      - Critical strike percentage (also: player.crit, crit, crit_pct)
+#   player.versa_pct     - Versatility percentage (also: player.versatility, versatility, versa_pct)
+#   player.mastery_pct   - Mastery percentage (also: player.mastery, mastery, mastery_pct)
 
 # Check haste breakpoint
 - fast_spell,if=player.haste_pct>=30
@@ -906,6 +1042,7 @@ actions:
 
 # Boss Fight Detection:
 #   player.boss_fight    - Boss1-Boss5 unit frames exist (in boss encounter)
+#   boss_fight           - Alias for player.boss_fight
 #
 # Target Validation:
 #   target.valid         - Comprehensive target check (exists, enemy, not dead, combat)
@@ -938,36 +1075,23 @@ actions:
 # ----------------------------------------------------------------------------
 # SECTION 15: TARGET CONDITIONS
 # ----------------------------------------------------------------------------
-
-# Target Existence/State:
-#   target.exists       - Target exists
-#   target.alive        - Target is alive
-#   target.dead         - Target is dead
-#   target.enemy        - Target is an enemy
-#   target.friendly     - Target is friendly
-#   target.attackable   - Target can be attacked
-#   target.boss         - Target is a boss
-#   target.quest_mob    - Target is a quest mob
-#   target.range        - Distance to target in yards
-#   target.combat       - Target is in combat (extended, target in bypass list, we're fighting a boss, target is targeting a party member)
-#   target.moving       - Target is moving
-#   target.targeting_party - Target is targeting party member
-#   target.classification - Target classification (elite, rare, etc.)
-#   target.threat       - Threat level on target
-#   target.lootable     - Target is lootable
-#   target.guid         - Target has a GUID
-
-# Target Casting:
-#   target.casting              - Target is casting
-#   target.channeling           - Target is channeling
-#   target.casting.spell        - Target's current spell
-#   target.casting.SPELL_NAME   - Target casting specific spell
-#   target.casting.spell(SPELL_NAME or ID) - Same check (function-call syntax)
-#   target.casting.remains      - Time remaining on target's cast
-#   target.casting.elapsed      - Time spent on current cast
-#   target.casting.interruptible - Cast can be interrupted
-#   target.casting.important    - Cast is important to interrupt
-#   target.casting.targeting_me - Cast is targeting player
+#
+# See SECTION 16 for common unit properties shared by all units.
+# This section covers target-specific properties and examples.
+#
+# Target-specific properties:
+#   target.boss              - Target is a boss
+#   target.quest_mob         - Target is a quest mob
+#   target.attackable        - Target can be attacked
+#   target.combat            - Target is in combat (extended check)
+#   target.moving            - Target is moving
+#   target.targeting_party   - Target is targeting party member
+#   target.classification    - Target classification (elite, rare, etc.)
+#   target.threat            - Threat level on target (0-3, -1 if N/A)
+#   target.lootable          - Target is lootable
+#   target.time_to_die       - Estimated seconds until target dies
+#   time_to_die              - Alias for target.time_to_die
+#   fight_remains            - Estimated time remaining in fight
 
 # Target exists and is alive
 - attack,if=target.exists&target.alive
@@ -994,47 +1118,113 @@ actions:
 - defensive,if=target.casting.targeting_me
 
 # ----------------------------------------------------------------------------
-# SECTION 16: FOCUS/MOUSEOVER/PET CONDITIONS
+# SECTION 16: UNIT CONDITIONS (player, target, focus, mouseover, pet)
 # ----------------------------------------------------------------------------
+#
+# All units share a common set of properties. Replace {unit} with:
+#   player, target, focus, mouseover, pet
+#
+# ============================================================================
+# COMMON UNIT PROPERTIES
+# ============================================================================
+#
+# {unit}.exists              - Unit exists
+# {unit}.alive               - Unit is alive
+# {unit}.dead                - Unit is dead
+# {unit}.health.current      - Current health value
+# {unit}.health.pct          - Health percentage (0-100)
+# {unit}.health.deficit      - Missing health amount (max - current)
+# {unit}.guid                - Unit has a GUID (for existence checks)
+#
+# {unit}.buff.SPELL.up       - Has buff (player-applied only by default)
+# {unit}.buff.SPELL.up.any   - Has buff from any source
+# {unit}.buff.SPELL.down     - Does not have buff
+# {unit}.buff.SPELL.remains  - Buff time remaining
+# {unit}.buff.SPELL.elapsed  - Time since buff applied
+# {unit}.buff.SPELL.stack    - Buff stack count
+# {unit}.debuff.SPELL.up     - Has debuff
+# {unit}.debuff.SPELL.down   - Does not have debuff
+# {unit}.debuff.SPELL.remains - Debuff time remaining
+# {unit}.debuff.SPELL.elapsed - Time since debuff applied
+# {unit}.debuff.SPELL.stack  - Debuff stack count
+#
+# Function-call syntax for buff/debuff checks:
+#   {unit}.buff.remains(SPELL) - Buff remaining duration
+#   {unit}.buff.stacks(SPELL) - Buff stack count
+#   {unit}.debuff.remains(SPELL) - Debuff remaining duration
+#   {unit}.debuff.stacks(SPELL) - Debuff stack count
+#
+# ============================================================================
+# COMBAT UNIT PROPERTIES (target, focus, mouseover - not player/pet)
+# ============================================================================
+#
+# {unit}.enemy               - Unit is an enemy
+# {unit}.friendly            - Unit is friendly
+# {unit}.range               - Distance to unit in yards
+#
+# {unit}.casting             - Unit is casting (bool)
+# {unit}.channeling          - Unit is channeling (bool)
+# {unit}.casting.spell       - Current spell ID being cast
+# {unit}.casting.SPELL_NAME  - Is casting specific spell (bool)
+# {unit}.casting.remains     - Time remaining on cast (seconds)
+# {unit}.casting.elapsed     - Time spent casting (seconds)
+# {unit}.casting.interruptible - Cast can be interrupted
+# {unit}.casting.important   - Cast is in _interrupts.yaml
+# {unit}.casting.targeting_me - Cast is targeting player
+#
+# ============================================================================
+# UNIT-SPECIFIC PROPERTIES
+# ============================================================================
+#
+# Target only:
+#   target.boss              - Is a boss
+#   target.quest_mob         - Is a quest mob
+#   target.attackable        - Can be attacked
+#   target.combat            - Is in combat (extended check)
+#   target.moving            - Is moving
+#   target.targeting_party   - Is targeting party member
+#   target.classification    - Unit classification (elite, rare, etc.)
+#   target.threat            - Threat level
+#   target.lootable          - Is lootable
+#   target.time_to_die       - Estimated seconds until death
+#
+# Mouseover only:
+#   mouseover.lootable       - Is lootable
+#
+# Pet only:
+#   pet.nearby_enemies       - Count of enemies within 8 yards of pet
+#
+# ============================================================================
+# EXAMPLES
+# ============================================================================
 
-# Focus Target:
-#   focus.exists, focus.alive, focus.dead
-#   focus.enemy, focus.friendly
-#   focus.hp
-#   focus.guid
-#   focus.buff.remains(SPELL), focus.buff.stacks(SPELL)
-#   focus.debuff.remains(SPELL), focus.debuff.stacks(SPELL)
+# Health checks - same syntax for all units
+- focus_heal,if=focus.alive&focus.health.pct<50
+- mouseover_heal,if=mouseover.friendly&mouseover.health.pct<80
+- pet_heal,if=pet.alive&pet.health.pct<40
+#
+# Absolute health examples
+- emergency_heal,if=health.deficit>50000
+- top_off,if=focus.health.current<200000
 
-# Mouseover Target:
-#   mouseover.exists, mouseover.alive, mouseover.dead
-#   mouseover.enemy, mouseover.friendly
-#   mouseover.hp
-#   mouseover.guid
-#   mouseover.lootable
-#   mouseover.buff.remains(SPELL), mouseover.buff.stacks(SPELL)
-#   mouseover.debuff.remains(SPELL), mouseover.debuff.stacks(SPELL)
-
-# Pet:
-#   pet.exists, pet.alive, pet.dead
-#   pet.hp
-#   pet.buff.SPELL.up/down/remains/stack
-#   pet.guid
-#   pet.nearby_enemies / pet.nearbyenemies - Count of enemies within 8 yards of pet
-
-# Focus target heal
-- focus_heal,if=focus.alive&focus.hp<50
-
-# Mouseover DoT
+# Buff/debuff checks - same syntax for all units
 - mouseover_dot,if=mouseover.enemy&mouseover.debuff.remains(dot)<=0
-
-# Pet buff check
 - pet_buff,if=pet.alive&pet.buff.frenzy.down
 
-# Pet AOE ability when enemies near pet
+# Casting checks - same syntax for target/focus/mouseover
+- pummel.focus,if=focus.casting.interruptible&focus.casting.elapsed>=0.5&focus.casting.remains<1
+- counterspell.mouseover,if=mouseover.casting.interruptible&mouseover.casting.remains<1
+- spell_reflect,if=focus.casting.targeting_me&focus.casting.remains<0.5
+
+# Range checks
+- charge.focus,if=focus.enemy&focus.range>8&focus.range<25
+
+# Pet-specific
 - pet_cleave,if=pet.alive&pet.nearby_enemies>=3
 
-# Focus interrupt (from _interrupts.yaml)
-- focus_kick,if=interrupts.focus.ready
+# GUID checks (for existence validation)
+- focus_spell,if=focus.guid
+- mouseover_spell,if=mouseover.guid&mouseover.health.pct<80
 
 # ----------------------------------------------------------------------------
 # SECTION 17: ENEMY/COMBAT COUNT
@@ -1066,10 +1256,10 @@ actions:
 - single_target_spell,if=active_enemies=1
 
 # Cleave range
-- cleave_spell,if=combat.enemies.8y>=2
+- cleave_spell,if=enemies.combat.8y>=2
 
 # Ranged AOE
-- ranged_aoe,if=combat.enemies.40y>=5
+- ranged_aoe,if=enemies.combat.40y>=5
 
 # ----------------------------------------------------------------------------
 # SECTION 18: HEALING TARGETING SYSTEM
@@ -1104,7 +1294,7 @@ actions:
 - tank_heal,target=tanks.lowest,if=group.tanks.lowest.health.pct<60
 
 # Apply buff to lowest member missing it
-- fortitude,target=missing.fortitude.lowest,if=group.missing.fortitude.count>0
+- fortitude,target=missing.fortitude.lowest,if=group.count(cycle.buff.fortitude.down)>0
 
 # ============================================================================
 # CYCLE TARGETING (cycle=)
@@ -1121,58 +1311,63 @@ actions:
 # How it works:
 #   1. Gets list of members in group, sorted by HP (lowest first)
 #   2. Iterates through each member
-#   3. For each member, evaluates conditions with that member as context
+#   3. For each member, evaluates conditions (use cycle.* for per-member checks)
 #   4. Casts on FIRST member where conditions pass
-#   5. Expressions like buff.X.up, health.pct, and range check the CURRENT cycle member
+#   5. Use explicit cycle.* expressions to check the CURRENT cycle member
 #
 # This is powerful for conditional per-member checks!
 
-# Apply HOT to first member (by HP) who doesn't have it
-- renew,cycle=members,if=buff.renew.down
+# Apply YOUR HOT to first member (by HP) who doesn't have YOUR HOT
+- renew,cycle=members,if=cycle.buff.renew.down
 
-# Apply HOT to first tank missing it
-- renew,cycle=tanks,if=buff.renew.down
+# Apply HOT to first member missing ANY Renew (from any healer)
+- renew,cycle=members,if=cycle.buff.renew.down.any
 
-# Shield first member under 80% without shield
-- shield,cycle=members,if=health.pct<80&buff.shield.down
+# Apply HOT to first tank missing YOUR HOT
+- renew,cycle=tanks,if=cycle.buff.renew.down
+
+# Shield first member under 80% without YOUR shield
+- shield,cycle=members,if=cycle.health.pct<80&cycle.buff.shield.down
 
 # Heal first DPS under 50%
-- heal,cycle=dps,if=health.pct<50
+- heal,cycle=dps,if=cycle.health.pct<50
 
 # ============================================================================
 # CYCLE CONTEXT EXPRESSIONS
 # ============================================================================
 #
-# Inside cycle conditions, these evaluate per-member:
-#   health.pct          - Current member's HP %
-#   range               - Range to current member
-#   dead                - Is current member dead
-#   buff.SPELL.up       - Current member has buff
-#   buff.SPELL.down     - Current member missing buff
-#   buff.SPELL.remains  - Buff duration on current member
-#   buff.SPELL.stack    - Buff stacks on current member
-#   debuff.SPELL.*      - Still refers to current target (NOT the cycle member)
+# Inside cycle conditions, use these explicit per-member expressions:
+#   cycle.health.current      - Current member's HP (absolute)
+#   cycle.health.max          - Current member's max HP
+#   cycle.health.pct          - Current member's HP %
+#   cycle.health.deficit      - Current member's missing HP
+#   cycle.range               - Range to current member
+#   cycle.buff.SPELL.up       - Current member has YOUR buff (player-applied)
+#   cycle.buff.SPELL.up.any   - Current member has buff from ANY source
+#   cycle.buff.SPELL.down     - Current member missing YOUR buff
+#   cycle.buff.SPELL.down.any - Current member missing buff from ALL sources
+#   cycle.buff.SPELL.remains  - YOUR buff duration on current member
+#   cycle.buff.SPELL.remains.any - Any buff duration on current member
+#   cycle.buff.SPELL.elapsed  - Time since buff applied on current member
+#   cycle.buff.SPELL.stack    - YOUR buff stacks on current member
+#   cycle.debuff.SPELL.*      - Current cycle member debuffs (use this for per-member dispel rules)
+#   cycle.debuff.SPELL.elapsed.any - Time since debuff applied (from any source)
+#   debuff.SPELL.*            - Still refers to current target (NOT the cycle member)
 
 # ============================================================================
 # GROUP EXPRESSIONS (healing/support)
 # ============================================================================
 
 # Health Threshold Counts:
-#   group.under_pct_30   - Count of members under 30% health
-#   group.under_pct_50   - Count of members under 50% health
-#   group.under_pct_75   - Count of members under 75% health
-#   group.under_pct_80   - Count of members under 80% health
-#   group.under_pct_85   - Count of members under 85% health
-#   group.under_pct_90   - Count of members under 90% health
-
-# Range Counts:
-#   group.in_range_10    - Members within 10 yards
-#   group.in_range_15    - Members within 15 yards
-#   group.in_range_30    - Members within 30 yards
-#   group.in_range_40    - Members within 40 yards
+#   group.count(EXPR)    - Count of members matching EXPR (use cycle.* inside)
+#   Example: group.count(cycle.health.pct<35)
+#   Example: group.count(cycle.health.pct<35&cycle.buff.renew.up)
+#   Example: group.count(cycle.range<=40)  # Members within 40 yards
 
 # Lowest Member Properties:
+#   group.lowest.health.current       - Lowest member's current HP
 #   group.lowest.health.pct           - Lowest member's health %
+#   group.lowest.health.deficit       - Lowest member's missing HP
 #   group.lowest.range                - Range to lowest member
 #   group.lowest.buff.SPELL.up        - Lowest has buff
 #   group.lowest.buff.SPELL.remains   - Buff remaining on lowest
@@ -1182,29 +1377,37 @@ actions:
 #   group.lowest.guid                 - Lowest member has a GUID
 
 # Role-Filtered Lowest:
+#   group.tanks.lowest.health.current - Lowest tank's current HP
 #   group.tanks.lowest.health.pct     - Lowest tank's HP %
+#   group.tanks.lowest.health.deficit - Lowest tank's missing HP
+#   group.healers.lowest.health.current - Lowest healer's current HP
 #   group.healers.lowest.health.pct   - Lowest healer's HP %
+#   group.healers.lowest.health.deficit - Lowest healer's missing HP
+#   group.dps.lowest.health.current   - Lowest DPS current HP
 #   group.dps.lowest.health.pct       - Lowest DPS HP %
+#   group.dps.lowest.health.deficit   - Lowest DPS missing HP
 
 # Buff Tracking (members WITH buff):
-#   group.buff.SPELL.count              - Members with buff
-#   group.buff.SPELL.lowest.health.pct  - HP of lowest with buff
+#   group.buff.SPELL.lowest.health.pct  - HP % of lowest with buff
+#   group.buff.SPELL.lowest.health.current - HP of lowest with buff
+#   group.buff.SPELL.lowest.health.deficit - Missing HP of lowest with buff
 #   group.buff.SPELL.lowest.range       - Range to lowest with buff
 
 # Missing Buff (members WITHOUT buff):
-#   group.missing.SPELL.count              - Members without buff
-#   group.missing.SPELL.lowest.health.pct  - HP of lowest without buff
+#   group.missing.SPELL.lowest.health.pct  - HP % of lowest without buff
+#   group.missing.SPELL.lowest.health.current - HP of lowest without buff
+#   group.missing.SPELL.lowest.health.deficit - Missing HP of lowest without buff
 #   group.missing.SPELL.lowest.range       - Range to lowest without buff
 
 # Emergency AOE heal when multiple members low
-- aoe_heal,if=group.under_pct_30>=2
+- aoe_heal,if=group.count(cycle.health.pct<30)>=2
 
 # Priority healing based on role
-- tank_heal,target=group.tanks.lowest,if=group.tanks.lowest.health.pct<40
-- heal,target=group.lowest,if=group.lowest.health.pct<50
+- tank_heal,target=tanks.lowest,if=group.tanks.lowest.health.pct<40
+- heal,target=lowest,if=group.lowest.health.pct<50
 
 # Buff maintenance using cycle
-- fortitude,cycle=members,if=buff.fortitude.down
+- fortitude,cycle=members,if=cycle.buff.fortitude.down
 
 # ============================================================================
 # NAMEPLATE AGGREGATIONS (enemies)
@@ -1217,9 +1420,17 @@ actions:
 #   nameplates.debuff.SPELL.count  - Nameplates with debuff
 #   nameplates.debuff.SPELL.lowest - Lowest debuff remaining
 #   nameplates.debuff.SPELL.highest - Highest debuff remaining
+#
+# IMPORTANT: By default, only counts player-applied auras.
+#   Use .any suffix to count auras from any source:
+#     nameplates.debuff.SPELL.count.any    - Count from any source
+#     nameplates.debuff.SPELL.lowest.any   - Lowest from any source
 
-# Spread DOT to enemies missing it
+# Spread DOT to enemies missing YOUR DOT
 - dot_spell,if=nameplates.debuff.corruption.count<3
+
+# Check for any Corruption on nameplates (from anyone)
+- aoe_spell,if=nameplates.debuff.corruption.count.any>=2
 
 # ----------------------------------------------------------------------------
 # SECTION 19: AURA POINT VALUES
@@ -1450,7 +1661,8 @@ actions:
 # _shared.yaml - Shared Action Lists
 # ============================================================================
 #
-# Defines reusable action lists available to all rotations via call_action_list.
+# Defines reusable action lists available to all rotations via call_action_list,
+# run_action_list, or call=list_name (alias of call_action_list).
 # Rotation-specific lists with same name override these.
 #
 # Format:
@@ -1462,7 +1674,7 @@ actions:
 #   config_shared:          # Settings available to all rotations
 #     setting_name:
 #       label: "Display"
-#       type: slider/checkbox
+#       type: slider/checkbox/dropdown/multi_select
 #       default: value
 #
 # Common shared lists:
@@ -1473,6 +1685,7 @@ actions:
 
 - call_action_list,name=sanity_checks
 - call_action_list,name=auto_heal
+- run_action_list,name=sanity_checks
 
 # ============================================================================
 # CONSUMABLE EXPRESSIONS
@@ -1534,7 +1747,7 @@ actions:
 # SECTION 24: USER-DEFINED VARIABLES
 # ----------------------------------------------------------------------------
 
-# Variables are defined in the var section and referenced with var.NAME
+# Variables are defined in the variables section and referenced with var.NAME
 # Useful for complex conditions used multiple times
 
 # Define variables (in the variables: section, see Section 29):
@@ -1554,6 +1767,10 @@ actions:
 #
 # Config options are defined in the config section and referenced with config.NAME
 # These create UI controls for users to customize behavior.
+#
+# UI ordering:
+#   Config entries are displayed in the same order they appear in YAML.
+#   (No explicit "order" field is needed.)
 #
 # Note: config. works for BOTH:
 #   - Rotation-specific config (config: section in rotation file)
@@ -1593,12 +1810,39 @@ actions:
 #       - label: "Aggressive"
 #         value: 3
 #     default: 1  # Index of default option (0-based), selects "Normal"
+#
+#   # Multi-select dropdown (choose multiple options)
+#   burst_tools:
+#     type: multi_select
+#     options:
+#       - label: "Trinket 1"
+#         value: 1
+#       - label: "Trinket 2"
+#         value: 2
+#       - label: "Potion"
+#         value: 3
+#     default: [0, 2]  # Indices of default options (0-based)
+#     # Alternatively:
+#     # default_values: [1, 3]
+#     # default_labels: ["Trinket 1", "Potion"]
+#
+# Multi-select behavior:
+#   config.NAME returns the number of selected options
+#   config.NAME.has(VALUE_OR_LABEL) returns 1 if selected, 0 otherwise
 
 # Use config in conditions:
 # - energy_spell,if=energy>=config.energy_threshold
 # - emergency_heal,if=health.pct<config.emergency_hp
 # - aoe_spell,if=config.use_aoe&active_enemies>=3
 # - big_cooldown,if=config.burst_mode>=2&target.boss
+# - trinket_1,if=config.burst_tools.has(1)
+# - combat_potion,if=config.burst_tools.has(Potion)
+# - burst_window,if=config.burst_tools>=1  # count of selected options
+#
+# Example auto-combat gate (multi_select):
+# - return,if=!player.combat&!((config.auto_combat.has(1)&target.quest_mob&target.enemy)|(config.auto_combat.has(2)&target.combat&target.enemy)|(config.auto_combat.has(3)&player.auto_attacking&target.enemy))
+# Optional "Off" override:
+# - return,if=!player.combat&config.auto_combat.has(0)
 
 # ----------------------------------------------------------------------------
 # SECTION 26: SPECIAL ACTIONS (VIRTUAL ACTIONS)
@@ -1660,8 +1904,8 @@ actions:
 #   focus_party4      - Set focus to party member 4
 #   focus_raid1-40    - Set focus to raid member 1-40
 
-- target_enemy,if=!target.exists&combat.enemies.8y>=1
-- target_enemy,if=target.dead&combat.enemies.8y>=1
+- target_enemy,if=!target.exists&enemies.combat.8y>=1
+- target_enemy,if=target.dead&enemies.combat.8y>=1
 - attack_target,if=target.exists&!player.combat
 
 # ============================================================================
@@ -1721,14 +1965,17 @@ actions:
 - polymorph.focus,if=focus.exists&focus.debuff.remains(polymorph)<=0
 
 # Mouseover healing (range auto-checked for heal spell)
-- heal.mouseover,if=mouseover.exists&mouseover.hp<80
+- heal.mouseover,if=mouseover.exists&mouseover.health.pct<80
 
 # ----------------------------------------------------------------------------
 # SECTION 28: ACTION LISTS (lists:)
 # ----------------------------------------------------------------------------
 #
 # Define reusable action lists within your rotation file.
-# Call them with: call_action_list,name=list_name
+# Call them with:
+#   call_action_list,name=list_name
+#   run_action_list,name=list_name (runs list, then restarts rotation)
+#   call=list_name (alias of call_action_list)
 #
 # Format:
 #   lists:
@@ -1740,9 +1987,15 @@ actions:
 #
 # In actions:
 #   - call_action_list,name=list_name,if=condition
+#   - run_action_list,name=list_name,if=condition
+#   - call=list_name,if=condition
 #
 # Lists are evaluated in order. First matching action is executed.
 # Use for organizing complex rotations into phases.
+#
+# call_action_list -> runs list, then continues to the next action
+# call=list_name  -> alias of call_action_list
+# run_action_list  -> runs list, then returns to start of rotation
 
 # lists:
 #   # Cooldown burst phase
@@ -1827,7 +2080,7 @@ actions:
 
 # Example 3: Healer Rotation
 # actions+=/flash_heal,if=group.lowest.health.pct<25
-# actions+=/prayer_of_healing,if=group.under_pct_80>=3&group.in_range_40>=3
+# actions+=/prayer_of_healing,if=group.count(cycle.health.pct<80&cycle.range<=40)>=3
 # actions+=/renew,if=group.lowest.buff.renew.refreshable&group.lowest.health.pct<90
 # actions+=/heal,if=group.lowest.health.pct<85
 
@@ -1847,18 +2100,24 @@ actions:
 # if=energy>=50                    # Has enough energy
 # if=combo_points>=5               # Max combo points
 # if=mana.pct>30                   # Mana above 30%
-# if=runic_power.deficit<20       # Almost full runic power
+# if=runic_power.deficit<20        # Almost full runic power
 
 # HEALTH CHECKS
 # if=health.pct<30                 # Low health
+# if=health.current<200000         # Low absolute HP
+# if=health.deficit>50000          # Missing HP threshold
 # if=target.health.pct<20          # Execute range
 # if=group.lowest.health.pct<50    # Party member needs healing
 
 # BUFF/DEBUFF CHECKS
-# if=buff.power.up                 # Buff is active
-# if=buff.power.remains<5          # Buff expiring soon
-# if=debuff.dot.refreshable        # DoT needs refresh
-# if=buff.some_buff.stack>=3       # Has 3+ stacks
+# if=buff.power.up                 # YOUR buff is active (player-applied)
+# if=buff.power.up.any             # ANY buff is active (from any source)
+# if=buff.power.remains<5          # YOUR buff expiring soon
+# if=debuff.dot.refreshable        # YOUR DoT needs refresh
+# if=debuff.dot.up.any             # Any DoT from any source
+# if=buff.some_buff.stack>=3       # Has 3+ stacks of YOUR buff
+# if=active_dot.corruption>=3      # 3+ enemies with YOUR DoT
+# if=active_dot.corruption.any>=3  # 3+ enemies with ANY Corruption
 
 # COOLDOWN CHECKS
 # if=cooldown.spell.ready          # Cooldown is ready
