@@ -27,12 +27,13 @@ Traditional rotations often rely on static priority lists that don't account for
 | Class | Specialization | Features |
 |-------|---------------|----------|
 | Priest | Discipline | Complete healing rotation with Atonement management, smart cooldowns, mouseover support |
+| Paladin | Holy | Complete healing rotation with smart cooldowns and mouseover support |
+| Paladin | Protection | Complete tank rotation with smart cooldowns and mouseover support |
 
 ### 🧪 Testers Needed
 | Class | Specialization | Status | ETA |
 |-------|---------------|--------|-----|
-| Paladin | Protection | Testing | 2026-01-28 | 
-| Paladin | Holy | Testing | 2026-01-28 | 
+| Paladin | Retribution | Alpha | 2026-01-30 |
 
 ### 🚧 In Development
 | Class | Specialization | Status | ETA |
@@ -43,7 +44,6 @@ Traditional rotations often rely on static priority lists that don't account for
 ### 📋 Planned
 | Class | Specialization | Priority |
 |-------|---------------|----------|
-| Paladin | Retribution | MEDIUM |
 | Priest | Shadow | MEDIUM |
 
 ### ❌ Not Planned
