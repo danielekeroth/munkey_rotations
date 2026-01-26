@@ -249,13 +249,13 @@ variables:
   # === DOT TRACKING VARIABLES ===
   # Rake DoT tracking
   rake_missing: "debuff.rake.down"
-  rake_pandemic: debuff.rake.remains<debuff.rake.duration*config.rake_pandemic_threshold
+  rake_pandemic: debuff.rake.refreshable
   rake_refresh_needed: var.rake_missing|var.rake_pandemic
   rake_duration_remaining: debuff.rake.remains
   
   # Rip DoT tracking  
   rip_missing: "debuff.rip.down"
-  rip_pandemic: debuff.rip.remains<debuff.rip.duration*config.rip_pandemic_threshold
+  rip_pandemic: debuff.rip.refreshable
   rip_refresh_needed: var.rip_missing|var.rip_pandemic
   rip_duration_remaining: debuff.rip.remains
   
@@ -293,9 +293,9 @@ variables:
   convoke_ready: cooldown.convoke_the_spirits.ready
   convoke_cd_remains: cooldown.convoke_the_spirits.remains
   convoke_cast_time: action.convoke_the_spirits.execute_time
-  feral_frenzy_ready: cooldown.feral_frenzy.ready
-  feral_frenzy_cd_remains: cooldown.feral_frenzy.remains
-  feral_frenzy_charges: cooldown.feral_frenzy.charges
+  feral_frenzy_ready: cooldown.feral_frenzy.ready|cooldown.frantic_frenzy.ready
+  feral_frenzy_cd_remains: cooldown.feral_frenzy.remains|cooldown.frantic_frenzy.remains
+  feral_frenzy_charges: cooldown.feral_frenzy.charges|cooldown.frantic_frenzy.remains
   major_cooldowns_ready: var.berserk_ready&var.tigers_fury_ready&config.sync_major_cooldowns
   convoke_sync_ready: var.major_cooldowns_ready&var.convoke_ready
   cooldown_sync_window: var.berserk_cd_remains<config.convoke_sync_window|var.tigers_fury_cd_remains<config.convoke_sync_window
@@ -476,8 +476,7 @@ lists:
     - ferocious_bite,if=var.apex_predators_craving_priority&var.energy_available_ferocious_bite&var.target_attackable
     
     # Emergency energy dump when at cap to prevent waste
-    - ferocious_bite,if=var.energy_cap_reached&combo_points>=5&var.energy_available_ferocious_bite&var.target_attackable
-    - rip,if=var.energy_cap_reached&combo_points>=5&var.rip_refresh_needed&var.energy_available_rip&var.target_attackable
+    - rip,if=var.energy_cap_reached&combo_points>=5&var.rip_refresh_needed&var.energy_available_rip&var.target_attackable&active_enemies=1
     - primal_wrath,if=var.energy_cap_reached&combo_points>=5&var.aoe_situation&var.rip_refresh_needed&var.energy_available_primal_wrath
     
     # Emergency combo point dump when at overflow risk
@@ -557,7 +556,6 @@ lists:
     - return,if=!buff.prowl.up&!buff.shadowmeld.up&!buff.stealth.up&time>config.opener_flexibility_window
     
     # Step 1: Rake as first ability from stealth (Requirement 3.1)
-    - wait,sec=config.opener_rake_delay/1000,if=config.opener_rake_delay>0&buff.prowl.up
     - rake,if=var.rake_missing&var.energy_available_rake&buff.prowl.up
     - rake,if=var.rake_missing&var.energy_available_rake&(buff.shadowmeld.up|buff.stealth.up)
     
@@ -602,9 +600,6 @@ lists:
     
     # Coiled to Spring overflow handling during opener
     - ferocious_bite,if=var.coiled_to_spring_storage&var.energy_available_ferocious_bite&var.berserk_window_active
-    
-    # Fallback to main rotation when opener conditions no longer apply
-    - call_action_list,name=main,if=!var.berserk_window_active&time>config.opener_flexibility_window&!var.opener_timing_flexible
     
   # Single-target priority system - implements optimized ST rotation
   single_target:
@@ -877,38 +872,34 @@ lists:
   target_switching:
     # === TARGET SWITCHING FOR DOT MAINTENANCE ===
     # Switch targets to apply missing Rake
-    - target_enemy,if=var.switch_for_rake&var.target_switch_worthwhile&var.dot_maintenance_priority,delay=1000
+    - target_enemy,if=var.target_switch_worthwhile&!dot.rip.refreshable&!dot.rake.refreshable
+    - rake,if=var.switch_for_rake&var.target_switch_worthwhile&var.dot_maintenance_priority&dot.rake.refreshable
     
     # Switch targets to apply missing Rip with Primal Wrath
-    - target_enemy,if=var.switch_for_primal_wrath&var.target_switch_worthwhile&var.dot_maintenance_priority,delay=30
+    - primal_wrath,if=var.switch_for_primal_wrath&var.target_switch_worthwhile&var.dot_maintenance_priority
     
     # Switch targets to apply single-target Rip when Primal Wrath unavailable
-    - target_enemy,if=var.switch_for_rip&var.target_switch_worthwhile&!cooldown.primal_wrath.ready&var.dot_maintenance_priority,delay=30
-    
-    # === PRIORITY TARGET SWITCHING ===
-    # Switch to high-priority targets (elites, rares, bosses)
-    - target_enemy,if=var.target_switch_priority&var.energy_available_rake,delay=30
-    - target_enemy,if=var.target_switch_priority&combo_points>=5&var.energy_available_rip,delay=30
+    - rip,if=var.switch_for_rip&var.target_switch_worthwhile&!cooldown.primal_wrath.ready&var.dot_maintenance_priority&dot.rip.refreshable
     
     # === MULTI-TARGET DOT SPREAD OPTIMIZATION ===
     # Spread Rake to multiple targets when energy allows
-    - target_enemy,if=var.dot_spread_priority&var.energy_available_rake&var.aoe_situation,delay=30
-    - target_enemy,if=var.rake_spread_targets>=2&var.energy_available_rake&energy>=70,delay=30
+    - rake,if=var.dot_spread_priority&var.energy_available_rake&var.aoe_situation&dot.rake.refreshable
+    - rake,if=var.rake_spread_targets>=2&var.energy_available_rake&energy>=70&dot.rake.refreshable
     
     # Spread Rip efficiently with Primal Wrath when multiple targets need it
-    - target_enemy,if=var.rip_spread_targets>=3&combo_points>=5&var.energy_available_primal_wrath&var.aoe_situation,delay=30
-    - target_enemy,if=var.dot_maintenance_needed&var.aoe_situation&var.energy_available_primal_wrath,delay=30
+    - primal_wrath,if=var.rip_spread_targets>=3&combo_points>=5&var.energy_available_primal_wrath&var.aoe_situation
+    - primal_wrath,if=var.dot_maintenance_needed&var.aoe_situation&var.energy_available_primal_wrath
     
     # Individual Rip application when Primal Wrath is inefficient
-    - target_enemy,if=var.rip_spread_targets=1&combo_points>=5&var.energy_available_rip,delay=30
+    - rip,if=var.rip_spread_targets=1&combo_points>=5&var.energy_available_rip&dot.rip.refreshable
     
     # === DOT MAINTENANCE ACROSS MULTIPLE TARGETS ===
     # Maintain existing DoTs on multiple targets during pandemic windows
-    - target_enemy,if=var.aoe_situation&var.energy_available_rake&var.rake_spread_targets<=1,delay=30
-    - target_enemy,if=var.aoe_situation&combo_points>=5&var.energy_available_rip&var.rip_spread_targets<=1,delay=30
+    - rake,if=var.aoe_situation&var.energy_available_rake&var.rake_spread_targets<=1&dot.rake.refreshable
+    - primal_wrath,if=var.aoe_situation&combo_points>=5&var.energy_available_rip&var.rip_spread_targets<=1&dot.rip.refreshable
     
     # Refresh DoTs on multiple targets when resources allow
-    - target_enemy,if=debuff.rip.refreshable.8y>=2&combo_points>=5&var.energy_available_primal_wrath&var.aoe_situation,delay=30
+    - primal_wrath,if=dot.rip.refreshable.8y>=2&combo_points>=5&var.energy_available_primal_wrath&var.aoe_situation
     
     # === TARGET SWITCHING EFFICIENCY VALIDATION ===
     # Return to primary target when DoT coverage is complete
