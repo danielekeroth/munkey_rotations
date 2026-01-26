@@ -11,7 +11,7 @@ variables:
   should_interrupt: target.casting.important|target.channeling.important
   is_templar: talent.lights_guidance
   is_herald: talent.dawnlight
-  opener_complete: combat.time<10&buff.avenging_wrath.remains>18
+  opener_complete: combat.time>gcd*7
 
 lists:
   interrupts:
