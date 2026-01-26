@@ -448,9 +448,8 @@ variables:
   # MO-Target Sanity Checks
   mo_valid_for_rake: mouseover.range<8&mouseover.exists&mouseover.alive&mouseover.enemy&mouseover.debuff.remains(rake)<=gcd.remains
   
-  # Target switching efficiency validation
-  target_switch_efficient: var.target_switching_available&var.dot_coverage_poor&var.aoe_situation
-  target_switch_worthwhile: var.target_switch_efficient&fight_remains>15
+  # Target switching efficiency - simplified logic  
+  target_switch_needed: config.target_switching_enabled&var.aoe_situation&"!var.dot_coverage_complete"
   maintain_current_target: var.dot_coverage_complete|var.single_target_situation|"!config.target_switching_enabled"
 
 lists:
@@ -484,7 +483,7 @@ lists:
     
     # === STEALTH OPENER SEQUENCE ===
     # Execute optimized opener when stealth conditions are met
-    - call_action_list,name=opener,if=var.opener_conditions_met&config.use_stealth_opener
+    - call_action_list,name=opener,if=var.opener_conditions_met&config.use_stealth_opener    
     
     # === TALENT-SPECIFIC HIGH-PRIORITY ACTIONS ===
     # Druid of the Claw Ravage proc management during Berserk windows
@@ -503,8 +502,8 @@ lists:
     # === PRIORITY SYSTEM SELECTION ===
     # Choose appropriate rotation based on enemy count and situation
     
-    # Target switching and DoT maintenance for multi-target scenarios
-    - call_action_list,name=target_switching,if=var.target_switch_efficient&var.aoe_situation&config.target_switching_enabled
+    # Target switching for DoT maintenance when coverage is incomplete
+    - call_action_list,name=target_switching,if=var.target_switch_needed&fight_remains>10
     
     # AoE priority when multiple enemies present
     - call_action_list,name=aoe,if=var.aoe_priority_active&var.target_attackable
@@ -547,7 +546,6 @@ lists:
     # === FINAL FALLBACK ===
     # Absolute last resort actions
     - shred,if=var.energy_available_shred&var.target_attackable&combo_points<5
-    - wait,sec=0.1,if=energy<40&!var.tigers_fury_ready
   
   # Stealth opener action list - implements the optimized opener sequence
   opener:
@@ -768,13 +766,6 @@ lists:
     # Generate combo points efficiently during cooldown windows
     - shred,if=var.berserk_window_active&combo_points<5&var.energy_available_shred&var.single_target_situation
     - swipe,if=var.berserk_window_active&combo_points<5&var.energy_available_swipe&var.aoe_situation
-    
-    # === EMERGENCY COOLDOWN USAGE ===
-    # Use cooldowns when fight is ending soon regardless of sync
-    - incarnation_avatar_of_ashamane,if=var.incarnation_talented&var.incarnation_ready&var.target_attackable&fight_remains<=20&combo_points>=2
-    - berserk,if=!var.incarnation_talented&var.berserk_ready&var.target_attackable&fight_remains<=20&combo_points>=2
-    - tigers_fury,if=var.tigers_fury_ready&var.target_attackable&fight_remains<=15&energy.pct<=80
-    - feral_frenzy,if=var.feral_frenzy_ready&var.target_attackable&fight_remains<=10
   
   # Claw Rampage synergy management for Druid of the Claw during Berserk windows
   claw_rampage:
@@ -870,32 +861,26 @@ lists:
   
   # Target switching and multi-target DoT maintenance system
   target_switching:
-    # === TARGET SWITCHING FOR DOT MAINTENANCE ===
-    # Switch targets to apply missing Rake
-    - target_enemy,if=var.target_switch_worthwhile&!dot.rip.refreshable&!dot.rake.refreshable
-    - rake,if=var.switch_for_rake&var.target_switch_worthwhile&var.dot_maintenance_priority&dot.rake.refreshable
+    # === SIMPLE TARGET SWITCHING FOR DOT COVERAGE ===
+    # Only switch if we have incomplete DoT coverage and target switching is enabled
+    - return,if=var.dot_coverage_complete
+    - return,if="!config.target_switching_enabled"
+    - return,if=var.single_target_situation
     
-    # Switch targets to apply missing Rip with Primal Wrath
-    - primal_wrath,if=var.switch_for_primal_wrath&var.target_switch_worthwhile&var.dot_maintenance_priority
+    # Switch to next target to check for DoT application opportunities
+    - target_enemy,if=nameplates.debuff.rake.count<active_enemies|nameplates.debuff.rip.count<active_enemies
     
-    # Switch targets to apply single-target Rip when Primal Wrath unavailable
-    - rip,if=var.switch_for_rip&var.target_switch_worthwhile&!cooldown.primal_wrath.ready&var.dot_maintenance_priority&dot.rip.refreshable
+    # Apply Rake if current target is missing it and we have energy
+    - rake,if="!debuff.rake.up"&var.energy_available_rake
     
-    # === MULTI-TARGET DOT SPREAD OPTIMIZATION ===
-    # Spread Rake to multiple targets when energy allows
-    - rake,if=var.dot_spread_priority&var.energy_available_rake&var.aoe_situation&dot.rake.refreshable
-    - rake,if=var.rake_spread_targets>=2&var.energy_available_rake&energy>=70&dot.rake.refreshable
+    # Apply Rip if current target is missing it and we have combo points
+    - rip,if="!debuff.rip.up"&combo_points>=5&var.energy_available_rip
     
-    # Spread Rip efficiently with Primal Wrath when multiple targets need it
-    - primal_wrath,if=var.rip_spread_targets>=3&combo_points>=5&var.energy_available_primal_wrath&var.aoe_situation
-    - primal_wrath,if=var.dot_maintenance_needed&var.aoe_situation&var.energy_available_primal_wrath
+    # Refresh Rake if it's in pandemic window
+    - rake,if=debuff.rake.refreshable&var.energy_available_rake
     
-    # Individual Rip application when Primal Wrath is inefficient
-    - rip,if=var.rip_spread_targets=1&combo_points>=5&var.energy_available_rip&dot.rip.refreshable
-    
-    # === DOT MAINTENANCE ACROSS MULTIPLE TARGETS ===
-    # Maintain existing DoTs on multiple targets during pandemic windows
-    - rake,if=var.aoe_situation&var.energy_available_rake&var.rake_spread_targets<=1&dot.rake.refreshable
+    # Refresh Rip if it's in pandemic window  
+    - rip,if=debuff.rip.refreshable&combo_points>=5&var.energy_available_rip
     - primal_wrath,if=var.aoe_situation&combo_points>=5&var.energy_available_rip&var.rip_spread_targets<=1&dot.rip.refreshable
     
     # Refresh DoTs on multiple targets when resources allow
@@ -905,5 +890,3 @@ lists:
     # Return to primary target when DoT coverage is complete
     - return,if=var.dot_coverage_complete&var.maintain_current_target
 
-    # Continue target switching when coverage is poor and beneficial
-    - call_action_list,name=target_switching,if=var.dot_coverage_poor&var.target_switch_efficient&fight_remains>10

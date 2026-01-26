@@ -1,0 +1,76 @@
+version: 1
+entry: main
+
+morphs:
+    wake_of_ashes: hammer_of_light
+    judgment: hammer_of_wrath
+
+config:
+
+variables:
+  should_interrupt: target.casting.important|target.channeling.important
+  is_templar: talent.lights_guidance
+  is_herald: talent.dawnlight
+  opener_complete: combat.time<10&buff.avenging_wrath.remains>18
+
+lists:
+  interrupts:
+    - rebuke,if=!target.casting.important&!target.interrupt_immune
+  st_opener:
+    - hammer_of_wrath,if=var.is_herald
+    - divine_toll,if=var.is_templar
+    - execution_sentence
+    - final_verdict,if=var.is_herald
+    - wake_of_ashes
+    - hammer_of_light,if=var.is_templar
+    - divine_toll,if=var.is_herald
+  aoe_opener:
+    - hammer_of_wrath,if=var.is_herald
+    - divine_toll,if=var.is_templar
+    - execution_sentence
+    - divine_storm,if=var.is_herald
+    - wake_of_ashes
+    - hammer_of_light,if=var.is_templar
+    - divine_toll,if=var.is_herald
+  st:
+    - execution_sentence
+    - hammer_of_light
+    - final_verdict,if=holy_power>=5
+    - wake_of_ashes
+    - divine_toll
+    - blade_of_justice,if=!talent.expurgation
+    - hammer_of_wrath
+    - judgment,if=cooldown.judgment.charges=2|cooldown.judgment.full_recharge_time<gcd+gcd.remaining
+    - final_verdict,if=holy_power>=4
+    - blade_of_justice
+    - judgment
+    - final_verdict
+  aoe:
+    - execution_sentence
+    - hammer_of_light
+    - divine_storm,if=holy_power>=5
+    - wake_of_ashes
+    - divine_toll
+    - blade_of_justice,if=!talent.expurgation
+    - hammer_of_wrath
+    - judgment,if=cooldown.judgment.charges=2|cooldown.judgment.full_recharge_time<gcd+gcd.remaining
+    - divine_storm,if=holy_power>=4
+    - blade_of_justice
+    - judgment
+    - final_verdict,if=buff.empyrean_legacy.up
+    - divine_storm
+  main:
+    - return,if=!state.rotation|state.blocked_inputs|player.mounted|dead
+    - call_action_list,name=interrupts,if=var.should_interrupt
+    - return,if=!player.combat|!target.valid|target.range>10
+    - call_action_list,name=sanity_checks
+    - call_action_list,name=auto_heal
+    - avenging_wrath,if=!talent.radiant_glory
+    - combat_potion,if=buff.avenging_wrath.up&player.inraid
+    - trinket_1,if=trinket_1.ready
+    - trinket_2,if=trinket_2.ready
+    - call_action_list,name=st_opener,if=active_enemies=1&!var.opener_complete
+    - call_action_list,name=aoe_opener,if=active_enemies>1&!var.opener_complete
+    - call_action_list,name=st,if=active_enemies=1
+    - call_action_list,name=aoe,if=active_enemies>1
+    

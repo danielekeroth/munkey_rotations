@@ -1,0 +1,50 @@
+version: 1
+entry: main
+
+config:
+
+variables:
+  should_interrupt: target.casting.important|target.channeling.important
+  mo_valid_enemy: mouseover.exists&mouseover.alive&mouseover.enemy&mouseover.range<=30
+  mo_should_interrupt: var.mo_valid_enemy&(mouseover.casting.important|mouseover.channeling.important)
+  is_aoe: state.aoe&active_enemies>=2
+  is_st: !var.is_aoe|active_enemies=1
+
+lists:
+  interrupts:
+    - disrupt,if=!target.casting.important&!target.interrupt_immune
+    - sigil_of_misery.player,if=!target.casting.important&!target.interrupt_immune
+    - void_nova,if=target.casting.important&!target.interrupt_immune
+  mouseover_interrupt:
+    - disrupt.mouseover,if=var.mo_should_interrupt
+    - imprison.mouseover,if=var.mo_should_interrupt
+  annihilator_opener:
+    - call_action_list,name=annihilator_st_opener,if=var.is_st
+    - call_action_list,name=annihilator_aoe_opener,if=var.is_aoe
+  annihilator_st_opener:
+    - 
+  annihilator_aoe_opener:
+    - 
+  annihilator_st:
+    -
+  annihilator_aoe:
+    -
+  void_scarred_opener:
+    - call_action_list,name=void_scarred_st_opener,if=var.is_st
+    - call_action_list,name=void_scarred_aoe_opener,if=var.is_aoe
+  void_scarred_st_opener:
+    -
+  void_scarred_aoe_opener:
+    -
+  void_scarred_st:
+    -
+  void_scarred_aoe:
+    -
+  main:
+    - return,if=!state.rotation|state.blocked_inputs|player.mounted|dead
+    - call_action_list,name=mouseover_interrupt,if=var.mo_valid_enemy
+    - call_action_list,name=interrupts,if=var.should_interrupt
+    - consume_magic,if=target.has_magic_buff
+    - call_action_list,name=annihilator_opener,if=buff.annihilator.up&combat.time<1
+    - call_action_list,name=void_scarred_opener,if=buff.void_scarred.up&combat.time<1
+
