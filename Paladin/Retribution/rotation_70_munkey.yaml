@@ -24,20 +24,31 @@ config:
     label: "Ignore TTD on Boss"
     type: checkbox
     default: true
+  detect_mob_gathering:
+    label: "Detect Mob Gathering"
+    type: checkbox
+    default: true
+  mo_combat_res:
+    label: "MO Combat Res"
+    type: checkbox
+    default: true
+  use_combat_potion:
+    label: "Use Combat Potion"
+    type: multi_select
+    options:
+      - label: "Raid"
+        value: 1
+      - label: "Mythic+"
+        value: 2
+      - label: "Always"
+        value: 3
+    default: [0,1,2]
   ttd_cd_usage:
     label: "TTD CD Useage (s)"
     type: slider
     default: 20
     min: 0
     max: 30
-  interrupt_target:
-    label: "Interrupt Target"
-    type: checkbox
-    default: true
-  interrupt_mouseover:
-    label: "Interrupt Mouseover"
-    type: checkbox
-    default: true
   aoe_treshold:
     label: "AoE Treshold"
     type: slider
@@ -111,27 +122,21 @@ variables:
   # TTD Logic
   is_ttd_valid: time_to_die<9999&player.combat
   is_fight_remains_valid: fight_remains<9999&player.combat
-  is_ttd_or_fm_above_treshold: ((fight_remains>=config.ttd_cd_usage&is_fight_remains_valid)|(time_to_die>config.ttd_cd_usage&is_ttd_valid))
-  should_use_cds: (state.cds&!var.use_smart_cds)|(state.cds&var.use_smart_cds&((config.ignore_ttd_on_boss&target.boss)|var.is_ttd_or_fm_above_treshold))
-
-  # Interrupt logic
-  should_interrupt: config.interrupt_target&(target.casting.important|target.channeling.important)&!target.interrupt_immune
-  should_interrupt_mouse: config.interrupt_mouseover&(mouseover.casting.important|mouseover.channeling.important)&!mouseover.interrupt_immune
-
+  is_ttd_or_fr_above_treshold: ((fight_remains>=config.ttd_cd_usage&var.is_fight_remains_valid)|(time_to_die>=config.ttd_cd_usage&var.is_ttd_valid))
+  gathering_mobs: combat.time<10&active_enemies<3&!target.boss
+  should_use_cds: target.bypass_combat|(var.gathering_mobs=false&(state.cds&!var.use_smart_cds)|(state.cds&var.use_smart_cds&((config.ignore_ttd_on_boss&target.boss)|var.is_ttd_or_fr_above_treshold)))
+  
   is_templar: talent.lights_guidance
   is_herald: talent.dawnlight
-  mo_is_resurrectable: mouseover.friendly&mouseover.dead&mouseover.range<=40
+  mo_is_resurrectable: config.mo_combat_res&mouseover.friendly&mouseover.dead&mouseover.range<=40
 
 lists:
-  emergency_healing:
+  defensives:
     - divine_protection,if=var.use_dp&config.dp_usage>0&health.pct<=config.dp_usage&cooldown.divine_protection.ready
     - word_of_glory,if=var.use_wog&config.wog_usage>0&health.pct<=config.wog_usage&cooldown.word_of_glory.ready
     - lay_on_hands,if=var.use_loh&debuff.forbearance.down&config.loh_usage>0&health.pct<=config.loh_usage&cooldown.lay_on_hands.ready
     - blessing_of_protection,if=var.use_bop&debuff.forbearance.down&config.bop_usage>0&health.pct<=config.bop_usage&cooldown.blessing_of_protection.ready
     - divine_shield,if=var.use_ds&debuff.forbearance.down&config.ds_usage>0&health.pct<=config.ds_usage&cooldown.divine_shield.ready
-  interrupts:
-    - rebuke,if=var.should_interrupt
-    - rebuke,if=var.should_interrupt_mouse
   st_opener:
     - hammer_of_wrath,name="Hammer of Wrath (ST Opener - 1)",if=var.is_herald
     - divine_toll,name="Divine Toll (ST Opener - 2)",if=var.is_templar&var.should_use_cds
@@ -175,17 +180,41 @@ lists:
     - judgment,name="Judgment (AoE - 11)"
     - final_verdict,name="Final Verdict (AoE - 12)",if=buff.empyrean_legacy.up
     - divine_storm,name="Divine Storm (AoE - 13)"
+  core:
+    # Necessary actions
+    - call_action_list,name=spell_queue
+    - call_action_list,name=sanity_checks
+    - call_action_list,name=auto_target
+    # Combat overrides.
+    - return,if=!player.combat&!((config.auto_combat.has(1)&target.quest_mob&target.enemy)|(config.auto_combat.has(2)&target.combat&target.enemy)|(config.auto_combat.has(3)&player.auto_attacking&target.enemy))                                                                                                 
+    - return,if=!player.combat&config.auto_combat.has(0)   
+
+    # Interrupts  
+    - rebuke,if=interrupts.mouseover.ready&target.casting.elapsed>=0.2&(target.casting.remains<1|target.channeling)
+    - rebuke.mouseover,if=interrupts.mouseover.ready&mouseover.casting.elapsed>=0.2&(mouseover.casting.remains<1|mouseover.channeling)
+    - rebuke.focus,if=interrupts.focus.ready&focus.casting.elapsed>=0.2&(focus.casting.remains<1|focus.channeling)
+
+    # CC Interrupt
+    - asphyxiate,if=interrupts.target.stun.ready&target.casting.elapsed>=0.2
+
+    # AoE Interrupt
+    - blinding_sleet,if=interrupts.8y.count>=2|interrupts.8y.stun.count>=2
+
+    # Target Check
+    - return,if=!target.valid&!((config.auto_combat.has(1)&target.quest_mob&target.enemy&!target.dead)|(config.auto_combat.has(2)&target.combat&target.enemy&!target.dead)|(config.auto_combat.has(3)&player.auto_attacking&target.enemy&!target.dead))
+    - return,if=!target.valid&config.auto_combat.has(0)   
+  combat_potions:
+    - combat_potion,if=buff.avenging_wrath.up&config.use_combat_potion.has(1)&player.inraid&combat_potion.ready
+    - combat_potion,if=buff.avenging_wrath.up&config.use_combat_potion.has(2)&player.inmythicplus&combat_potion.ready
+    - combat_potion,if=buff.avenging_wrath.up&config.use_combat_potion.has(3)&combat_potion.ready
   main:
-    - return,if=!state.rotation|state.blocked_inputs|player.mounted|dead
-    - call_action_list,name=interrupts,if=var.use_interrupts
-    - return,if=!player.combat
-    - healthstone,if=health.pct<config.healthstone&healthstone.ready
-    - health_potion,if=health.pct<config.healthpotion&health_potion.ready
-    - call_action_list,name=emergency_healing,if=var.use_defensives
+    - call_action_list,name=core
+    - clenase_toxins,if=player.dispelable.list
+    - cleanse_toxins,cycle=dps,if=cycle.dispelable.list
+    - call_action_list,name=defensives,if=var.use_defensives
     - intercession.mouseover,if=var.mo_is_resurrectable
-    - return,if=!target.valid|target.range>10
     - avenging_wrath,if=!talent.radiant_glory&var.should_use_cds
-    - combat_potion,if=buff.avenging_wrath.up&player.inraid&combat_potion.ready
+    - call_action_list,name=combat_potions
     - trinket_1,if=trinket_1.ready&var.should_use_cds
     - trinket_2,if=trinket_2.ready&var.should_use_cds
     - call_action_list,name=st_opener,if=var.is_st_combat&!var.opener_complete
