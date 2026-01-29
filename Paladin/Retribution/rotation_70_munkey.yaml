@@ -1,5 +1,8 @@
-version: 1
-entry: main
+version: 1.0
+author: munkey
+spec: 70
+name: Retribution
+description: Banging retri rotation
 
 morphs:
     wake_of_ashes: hammer_of_light
