@@ -1,4 +1,6 @@
-# The Benevolent Kidnapper 👼🚑
+
+[![Discipline Priest](/Priest/Discipline/banner.jpeg)](/Priest/Discipline)
+# The Benevolent Kidnapper
 ### *Discipline Priest Rotation by munkey*
 
 Welcome to **The Benevolent Kidnapper**, the only rotation that acknowledges the fundamental truth of World of Warcraft: **Your allies are trying to kill themselves, and it is your divine duty to stop them.**
