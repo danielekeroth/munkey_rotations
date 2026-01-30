@@ -135,6 +135,40 @@ config:
     label: "Max missing atonement party"
     max: 5
     default: 0
+  ## Automated M+ Settings
+  use_automated_m_plus: 
+    label: "Use Automated M+ Logic"
+    type: checkbox
+    default: false
+  ara_kara_avanoxx_features:
+    label: "Ara Kara - Avanoxx"
+    type: multi_select
+    options:
+      - label: "Pre-emptive healing"
+        value: 1
+      - label: "Auto Leap of Faith"
+        value: 2
+      - label: "Auto Dispel"
+        value: 3
+    default: [0,1,2]
+  ara_kara_anubzekt_features:
+    label: "Ara Kara - Anubzekt"
+    type: multi_select
+    options:
+      - label: "Auto Leap of Faith"
+        value: 1
+    default: [0]
+  ara_kara_kikatal_features:
+    label: "Ara Kara - Ki'katal"
+    type: multi_select
+    options:
+      - label: "Pre-emptive shielding"
+        value: 1
+      - label: "Auto Leap of Faith"
+        value: 2
+      - label: "Auto Pain Suppression"
+        value: 3
+    default: [0,1,2]
 
 variables:
   ## Use Angelic Feather if moving for treshhold (2) seconds and no feather on me and in combat or out of combat depending on setting
@@ -162,8 +196,16 @@ variables:
   penance_stacks: cooldown.penance.charges
   ## Hold penance if close to full regen and Holy Ray talented
   hold_penance: cooldown.penance.full_recharge_time<2&talent.holy_ray
+  use_amp: config.use_automated_m_plus
   ## Trigger for Living Silk based on percentage of members below a certain threshold
-  living_silk_treshold_trigger: config.living_silk_usage=2&config.living_silk_members_treshold<=group.count(cycle.health.pct<=config.living_silk_hp_treshold)
+  living_silk_treshold_trigger: config.living_silk_usage=2&config.living_silk_members_treshold<=group.count(cycle.health.pct<=config.living_silk_hp_treshold)  
+  ## Ara Kara - Avanoxx
+  avanoxx_damage_incoming: boss_fight&target.picid=213179&(target.casting.alerting_shrill|target.casting.gossamer_onslaught)
+  ## Ara Kara - Anubzekt
+  anubzekt_eye_of_the_swarm: boss_fight&target.picid=215405&(target.casting.eye_of_the_swarm)
+  ## Ara Kara - Ki'katal
+  kikatal_erupting_webs_danger: boss_fight&target.picid=231649&target.casting.erupting_webs&target.casting.erupting_webs.remains<0.1
+  kikatal_cosmic_singularity_danger: boss_fight&target.picid=231649&target.casting.cosmic_singularity&target.casting.cosmic_singularity.remains<0.2
 
 lists:
   living_silk:
@@ -229,6 +271,27 @@ lists:
     - dispel_magic,cycle=members,if=cycle.dispelable
     - purify,if=player.dispelable
     - purify,cycle=members,if=cycle.dispelable
+  mythic_plus:
+    - call_action_list,name=ara_kara
+  ara_kara:
+    ## Avanoxx
+    ## Trash
+    - dispel_magic,cycle=tanks,if=cycle.debuff.tainted_blood.stack>=12|mouseover.exists&mouseover.friendly&mouseover.debuff.tainted_blood.stack>=8
+    ## If we are in a boss fight and the target is casting Alerting Shrill or Gossamer Onslaught and at least 3 party members are below 50% health, use ultimate penitence
+    - ultimate_penitence,name="Pre-emptive penitence",if=var.use_amp&config.ara_kara_avanoxx_features.has(1)&var.avanoxx_damage_incoming&group.count(cycle.health.pct<=50)>=3
+    - power_word_shield,cycle=members,if=var.use_amp&config.ara_kara_avanoxx_features.has(1)&var.avanoxx_damage_incoming&cycle.health.pct<=50&cycle.buff.power_word_shield.down
+    - penance,cycle=members,if=var.use_amp&config.ara_kara_avanoxx_features.has(1)&var.avanoxx_damage_incoming&cycle.health.pct<=50&cycle.buff.power_word_shield.down
+    - leap_of_faith,cycle=dps,if=var.use_amp&config.ara_kara_avanoxx_features.has(2)&cycle.debuff.vile_webbing.stack>3 ## Pull party member out of web if starting to build stacks
+    - dispel_magic,cycle=members,if=var.use_amp&config.ara_kara_avanoxx_features.has(3)&cycle.debuff.web_wrap.up ## Remove web wrap
+    ## Anubzekt
+    - leap_of_faith,cycle=dps,if=var.use_amp&config.ara_kara_anubzekt_features.has(1)&target.casting.eye_of_the_swarm&cycle.debuff.ceaseless_swarm.stack>2 ## Pull DPS if they're gaining stacks of ceaseless swarm
+    - leap_of_faith,cycle=members,if=var.use_amp&config.ara_kara_anubzekt_features.has(1)&cycle.debuff.silken_restraints.up ## Pull DPS if they're gaining stacks of ceaseless swarm
+    - power_word_shield,cycle=dps,if=target.casting.eye_of_the_swarm&cycle.debuff.ceaseless_swarm.stack>2 ## Shield DPS if they're gaining stacks of ceaseless swarm
+    - penance,cycle=dps,if=target.casting.eye_of_the_swarm&cycle.debuff.ceaseless_swarm.stack>2 ## Penance DPS if they're gaining stacks of ceaseless swarm
+    ## Ki'katal
+    - leap_of_faith,cycle=members,if=var.use_amp&config.ara_kara_kikatal_features.has(2)&((var.kikatal_erupting_webs_danger&cycle.debuff.grasping_blood.down)|(var.kikatal_cosmic_singularity_danger&cycle.debuff.grasping_blood.down&cycle.buff.deaths_advance.down&cycle.buff.))
+    - pain_suppression,cycle=members,if=var.use_amp&config.ara_kara_kikatal_features.has(3)&var.kikatal_erupting_webs_danger&cycle.debuff.grasping_blood.up
+    - power_word_shield,cycle=members,if=var.use_amp&config.ara_kara_kikatal_features.has(1)&var.kikatal_erupting_webs_danger&cycle.debuff.grasping_blood.up
   main:
     - call_action_list,name=spell_queue
     - call_action_list,name=out_of_combat
@@ -236,6 +299,7 @@ lists:
     - call_action_list,name=mouseover_friendly,if=config.MO_enabled&mouseover.exists&mouseover.alive&!player.casting&!player.channeling&mouseover.friendly
     - call_action_list,name=mouseover_enemy,if=config.MO_enabled&mouseover.exists&mouseover.alive&!player.casting&!player.channeling&mouseover.enemy
     - call_action_list,name=core
+    - call_action_list,name=mythic_plus,if=player.in_mythic_plus
     - call_action_list,name=pain_suppression_logic
     - call_action_list,name=moving,if=player.moving
     - call_action_list,name=high_prio
