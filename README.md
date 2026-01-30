@@ -1,5 +1,5 @@
 # Munkey Rotations
-
+[![Discipline Priest](/Priest/Discipline/banner.jpeg)](/Priest/Discipline)
 Real-life optimized rotations for World of Warcraft that go beyond simple priority lists. Our rotations are designed with extensive customization options and intelligent decision-making to adapt to actual gameplay scenarios.
 
 *** PLEASE NOTE THAT SOME FEATURES / ROTATIONS MAY REQUIRE THE MUNKEY ROTATIONS ADDON INSIDE THE ADDON FOLDER ***
