@@ -35,6 +35,11 @@ config:
     label: Desperate prayer %
     default: 30
   ## Utility Settings
+  pwf_fallback_time:
+    label: PW:F fallback time
+    min: 0
+    max: 30
+    default: 10
   angelic_feather_usage:
     label: Use Angelic Feather
     type: dropdown
@@ -179,7 +184,7 @@ variables:
   ## Someone within 40 yards without my Atonement
   missing_atonement: group.count(cycle.buff.atonement.down.mine&cycle.range<=40&cycle.range>0)
   ## Someone within 40 yards without PW:F
-  missing_pwf: group.count(cycle.buff.power_word_fortitude.down&cycle.range>0&cycle.range<=40)
+  missing_pwf: group.count(cycle.buff.power_word_fortitude.down&cycle.range>0&cycle.range<=40)>0|buff.power_word_fortitude.down
   ## MO is over a friendly player within 40 yards
   friendly_and_valid_mo: mouseover.exists&mouseover.alive&mouseover.friendly&mouseover.range>0&mouseover.range<=40
   ## Trinket 1 is living silk
@@ -215,6 +220,7 @@ lists:
     - flash_heal,cycle=members,if=var.surge_of_light_procced&cycle.health.pct<=config.OOC_flash_heal_treshold&!player.combat
     - penance,cycle=members,if=cycle.health.pct<=config.OOC_penance_treshold&!player.combat
     - flash_heal,cycle=members,if=cycle.health.pct<=config.OOC_flash_heal_treshold&!player.combat
+    - power_word_fortitude,ignore_usable=true,if=var.missing_pwf>0&(lastcast.power_word_fortitude<?config.pwf_fallback_time)>config.pwf_fallback_time
   offensive:
     - shadow_word_pain,if=debuff.shadow_word_pain.refreshable
     - penance,if=cooldown.penance.full_recharge_time=0|buff.power_of_the_dark_side.up|!cooldown.mind_blast.ready
@@ -257,6 +263,8 @@ lists:
   core:
     # Necessary actions
     - call_action_list,name=sanity_checks
+    - call_action_list,name=spell_queue
+    - call_action_list,name=auto_heal
     - call_action_list,name=auto_target_ranged
     # Combat overrides.
     - return,if=!player.combat&!((config.auto_combat.has(1)&target.quest_mob&target.enemy)|(config.auto_combat.has(2)&target.combat&target.enemy)|(config.auto_combat.has(3)&player.auto_attacking&target.enemy))                                                                                                 
@@ -274,26 +282,25 @@ lists:
   mythic_plus:
     - call_action_list,name=ara_kara
   ara_kara:
-    ## Avanoxx
     ## Trash
     - dispel_magic,cycle=tanks,if=cycle.debuff.tainted_blood.stack>=12|mouseover.exists&mouseover.friendly&mouseover.debuff.tainted_blood.stack>=8
-    ## If we are in a boss fight and the target is casting Alerting Shrill or Gossamer Onslaught and at least 3 party members are below 50% health, use ultimate penitence
+    ## Avanoxx
     - ultimate_penitence,name="Pre-emptive penitence",if=var.use_amp&config.ara_kara_avanoxx_features.has(1)&var.avanoxx_damage_incoming&group.count(cycle.health.pct<=50)>=3
     - power_word_shield,cycle=members,if=var.use_amp&config.ara_kara_avanoxx_features.has(1)&var.avanoxx_damage_incoming&cycle.health.pct<=50&cycle.buff.power_word_shield.down
     - penance,cycle=members,if=var.use_amp&config.ara_kara_avanoxx_features.has(1)&var.avanoxx_damage_incoming&cycle.health.pct<=50&cycle.buff.power_word_shield.down
-    - leap_of_faith,cycle=dps,if=var.use_amp&config.ara_kara_avanoxx_features.has(2)&cycle.debuff.vile_webbing.stack>3 ## Pull party member out of web if starting to build stacks
-    - dispel_magic,cycle=members,if=var.use_amp&config.ara_kara_avanoxx_features.has(3)&cycle.debuff.web_wrap.up ## Remove web wrap
+    - leap_of_faith,cycle=dps,if=var.use_amp&config.ara_kara_avanoxx_features.has(2)&cycle.debuff.vile_webbing.stack>3
+    - dispel_magic,cycle=members,if=var.use_amp&config.ara_kara_avanoxx_features.has(3)&cycle.debuff.web_wrap.up
     ## Anubzekt
-    - leap_of_faith,cycle=dps,if=var.use_amp&config.ara_kara_anubzekt_features.has(1)&target.casting.eye_of_the_swarm&cycle.debuff.ceaseless_swarm.stack>2 ## Pull DPS if they're gaining stacks of ceaseless swarm
-    - leap_of_faith,cycle=members,if=var.use_amp&config.ara_kara_anubzekt_features.has(1)&cycle.debuff.silken_restraints.up ## Pull DPS if they're gaining stacks of ceaseless swarm
-    - power_word_shield,cycle=dps,if=target.casting.eye_of_the_swarm&cycle.debuff.ceaseless_swarm.stack>2 ## Shield DPS if they're gaining stacks of ceaseless swarm
-    - penance,cycle=dps,if=target.casting.eye_of_the_swarm&cycle.debuff.ceaseless_swarm.stack>2 ## Penance DPS if they're gaining stacks of ceaseless swarm
+    - leap_of_faith,cycle=dps,if=var.use_amp&config.ara_kara_anubzekt_features.has(1)&target.casting.eye_of_the_swarm&cycle.debuff.ceaseless_swarm.stack>2
+    - leap_of_faith,cycle=members,if=var.use_amp&config.ara_kara_anubzekt_features.has(1)&cycle.debuff.silken_restraints.up
+    - power_word_shield,cycle=dps,if=target.casting.eye_of_the_swarm&cycle.debuff.ceaseless_swarm.stack>2 
+    - penance,cycle=dps,if=target.casting.eye_of_the_swarm&cycle.debuff.ceaseless_swarm.stack>2 
     ## Ki'katal
     - leap_of_faith,cycle=members,if=var.use_amp&config.ara_kara_kikatal_features.has(2)&((var.kikatal_erupting_webs_danger&cycle.debuff.grasping_blood.down)|(var.kikatal_cosmic_singularity_danger&cycle.debuff.grasping_blood.down&cycle.buff.deaths_advance.down&cycle.buff.))
     - pain_suppression,cycle=members,if=var.use_amp&config.ara_kara_kikatal_features.has(3)&var.kikatal_erupting_webs_danger&cycle.debuff.grasping_blood.up
     - power_word_shield,cycle=members,if=var.use_amp&config.ara_kara_kikatal_features.has(1)&var.kikatal_erupting_webs_danger&cycle.debuff.grasping_blood.up
   main:
-    - call_action_list,name=spell_queue
+    - return,if=player.dead|!state.rotation
     - call_action_list,name=out_of_combat
     - angelic_feather.player,if=var.use_af
     - call_action_list,name=mouseover_friendly,if=config.MO_enabled&mouseover.exists&mouseover.alive&!player.casting&!player.channeling&mouseover.friendly
