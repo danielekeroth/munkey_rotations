@@ -258,6 +258,7 @@ lists:
     - pain_suppression.mouseover,if=player.combat&config.MO_pain_suppression&mouseover.health.pct<=config.pain_suppression_threshold&mouseover.buff.remains(pain_suppression)=0
     - penance.mouseover,if=config.MO_penance&mouseover.health.pct<=config.MO_penance_treshold
     - flash_heal.mouseover,if=config.MO_flash_heal&mouseover.range&mouseover.health.pct<=config.MO_flash_heal_treshold
+    - power_word_fortitude.player,ignore_usable=true,if=mouseover.npcid=0&mouseover.friendly&mouseover.alive&mouseover.exists&mouseover.buff.remains(power_word_fortitude)=0
   mouseover_enemy:
     - shadow_word_pain.mouseover,if=config.MO_enabled&config.MO_shadow_word_pain&mouseover.enemy&mouseover.alive&mouseover.exists&(config.allow_pull_with_mo|mouseover.combat)&mouseover.debuff.remains(shadow_word_pain)=0
   trinkets:
