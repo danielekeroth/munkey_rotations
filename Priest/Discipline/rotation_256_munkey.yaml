@@ -35,6 +35,20 @@ config:
     label: Desperate prayer %
     default: 30
   ## Utility Settings
+  arcane_torrent_treshold:
+    label: Arcane Torrent Mana%
+    default: 70
+  auto_pi:
+    label: CD Aware PI
+    type: dropdown
+    options:
+      - label: "Never"
+        value: 1
+      - label: "Only on bosses"
+        value: 2
+      - label: "Always"
+        value: 3
+    default: 2
   pwf_fallback_time:
     label: PW:F fallback time
     min: 0
@@ -98,10 +112,10 @@ config:
   ## Out of Combat Settings
   OOC_penance_treshold:
     label: "OOC Penance %"
-    default: 95
+    default: 65
   OOC_flash_heal_treshold:
     label: "OOC Flash Heal"
-    default: 70
+    default: 80
   SWD_usage_treshhold:
     label: "SW: Death HP Treshold"
     default: 50
@@ -213,6 +227,14 @@ variables:
   kikatal_cosmic_singularity_danger: boss_fight&target.picid=231649&target.casting.cosmic_singularity&target.casting.cosmic_singularity.remains<0.2
 
 lists:
+  racials:
+    - arcane_torrent,if=player.mana.pct<=config.arcane_torrent_treshold
+    - will_to_survive,if=player.stunned.elapsed>0.4
+    - will_of_the_forsaken,if=player.charmed.elapsed>0.4|player.feared.elapsed>0.4
+    - fireblood,if=player.dispelable.elapsed>0.4
+    - hyper_organic_light_originator,if=!player.tank&(player.indungeon|!player.inraid)&target.combat&!target.targeting_party
+  auto_pi:
+    - power_infusion,cycle=dps,if=((cycle.buff.avatar.remains>15)|(cycle.buff.recklessness.remains>8)|((cycle.buff.demonic_art_overlord.up|cycle.buff.demonic_art_mother_of_chaos.up|cycle.buff.demonic_art_pitlord.up)&cycle.buff.malevolence.remains>10)|(cycle.buff.tyrants_oblation.remains>10)|(cycle.buff.malevolence.remains>15)|(cycle.buff.ascendance.remains>10)|(cycle.buff.shadow_blades.remains>12)|(cycle.buff.adrenaline_rush.remains>10)|(cycle.buff.deathmark.remains>10&cycle.buff.kingsbane.remains>10)|(cycle.buff.voidform.remains>15)|(cycle.buff.avenging_wrath.remains>15)|(cycle.buff.courage_of_the_white_tiger.remains>29)|(cycle.buff.combustion.remains>8)|(cycle.buff.arcane_surge.remains>14)|(cycle.buff.takedown.remains>6)|(cycle.buff.trueshot.remains>10)|(cycle.buff.bestial_wrath.remains>10|cycle.buff.bloodshed.remains>10)|(cycle.buff.dragonrage.remains>10)|(cycle.buff.incarnation_avatar_of_ashamane.remains>10|cycle.buff.berserk.remains>10)|(cycle.buff.incarnation_chosen_of_elune.remains>10|cycle.buff.celestial_alignment.remains>10)|(cycle.buff.void_metamorphosis.remains>10)|(cycle.buff.metamorphosis.remains>10)|(cycle.buff.army_of_the_dead.remains>10)|(cycle.buff.pillar_of_frost.remains>10|cycle.buff.breath_of_sindragosa.remains>7))&!cycle.buff.power_infusion.up.any
   living_silk:
     - trinket_1,if=var.trinket1_living_silk&trinket_1.ready&(config.living_silk_usage=1|var.living_silk_treshold_trigger)
     - trinket_2,if=var.trinket2_living_silk&trinket_2.ready&(config.living_silk_usage=1|var.living_silk_treshold_trigger)
@@ -220,7 +242,7 @@ lists:
     - flash_heal,cycle=members,if=var.surge_of_light_procced&cycle.health.pct<=config.OOC_flash_heal_treshold&!player.combat
     - penance,cycle=members,if=cycle.health.pct<=config.OOC_penance_treshold&!player.combat
     - flash_heal,cycle=members,if=cycle.health.pct<=config.OOC_flash_heal_treshold&!player.combat
-    - power_word_fortitude,ignore_usable=true,if=var.missing_pwf>0&(lastcast.power_word_fortitude<?config.pwf_fallback_time)>config.pwf_fallback_time
+    - power_word_fortitude.player,ignore_usable=true,if=var.missing_pwf>0&(lastcast.power_word_fortitude<?config.pwf_fallback_time)>config.pwf_fallback_time
   offensive:
     - shadow_word_pain,if=debuff.shadow_word_pain.refreshable
     - penance,if=cooldown.penance.full_recharge_time=0|buff.power_of_the_dark_side.up|!cooldown.mind_blast.ready
@@ -275,10 +297,10 @@ lists:
     - return,if=!target.valid&!((config.auto_combat.has(1)&target.quest_mob&target.enemy&!target.dead)|(config.auto_combat.has(2)&target.combat&target.enemy&!target.dead)|(config.auto_combat.has(3)&player.auto_attacking&target.enemy&!target.dead))
     - return,if=!target.valid&config.auto_combat.has(0)   
   dispels:
-    - dispel_magic,if=player.dispelable
-    - dispel_magic,cycle=members,if=cycle.dispelable
-    - purify,if=player.dispelable
-    - purify,cycle=members,if=cycle.dispelable
+    - dispel_magic,if=player.dispelable.list
+    - dispel_magic,cycle=members,if=cycle.dispelable.list
+    - purify,if=player.dispelable.list
+    - purify,cycle=members,if=cycle.dispelable.list
   mythic_plus:
     - call_action_list,name=ara_kara
   ara_kara:
@@ -306,6 +328,8 @@ lists:
     - call_action_list,name=mouseover_friendly,if=config.MO_enabled&mouseover.exists&mouseover.alive&!player.casting&!player.channeling&mouseover.friendly
     - call_action_list,name=mouseover_enemy,if=config.MO_enabled&mouseover.exists&mouseover.alive&!player.casting&!player.channeling&mouseover.enemy
     - call_action_list,name=core
+    - call_action_list,name=racials
+    - call_action_list,name=auto_pi,if=config.auto_pi=3|(config.auto_pi=2&boss_fight)
     - call_action_list,name=mythic_plus,if=player.in_mythic_plus
     - call_action_list,name=pain_suppression_logic
     - call_action_list,name=moving,if=player.moving
