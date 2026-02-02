@@ -1,0 +1,158 @@
+version: 1
+author: munkey
+spec: 63
+entry: main
+name: Munkey Fire Mage TWW
+description: "Fire Mage rotation for TWW 11.0.7. Supports Sun King's Blessing and Frostfire Hero Talents. Includes Combustion management and SKB hardcast logic."
+
+# Morphing logic for Hero Talents and Leveling
+morphs:
+  fireball: frostfire_bolt,if=talent.frostfire_bolt
+
+config:
+  section: "Cooldowns"
+  use_combustion:
+    label: "Use Combustion"
+    type: checkbox
+    default: true
+  combustion_ttd:
+    label: "Hold Combustion if TTD Below (s)"
+    type: slider
+    min: 10
+    max: 60
+    default: 15
+  section: "Defensives"
+  ice_barrier_hp:
+    label: "Ice Barrier HP%"
+    type: slider
+    min: 10
+    max: 100
+    default: 80
+  mirror_image_hp:
+    label: "Mirror Image HP%"
+    type: slider
+    min: 10
+    max: 100
+    default: 40
+  ice_block_hp:
+    label: "Ice Block HP%"
+    type: slider
+    min: 5
+    max: 30
+    default: 15
+  section: "Utility"
+  auto_intellect:
+    label: "Auto-Arcane Intellect"
+    type: checkbox
+    default: true
+
+variables:
+  # Combat State
+  is_moving: player.moving
+  time_to_die_ok: (target.time_to_die > config.combustion_ttd) | target.boss
+  use_aoe: active_enemies >= 3
+  
+  # Auras
+  is_combustion: buff.combustion.up
+  is_hot_streak: buff.hot_streak.react
+  is_heating_up: buff.heating_up.react
+  is_pyroclasm: buff.pyroclasm.react
+  
+  # Sun King's Blessing (SKB)
+  # SKB stacks to 10. At 10 stacks, the next hardcast Pyroblast/Flamestrike gives Combustion.
+  skb_stacks: buff.sun_kings_blessing.stack
+  skb_ready: buff.sun_kings_blessing.up & var.skb_stacks >= 10
+  
+  # Hyperthermia / Frostfire / Other Procs
+  is_hyperthermia: buff.hyperthermia.up
+  is_frostfire_empowerment: buff.frostfire_empowerment.up
+  is_heat_shimmer: buff.heat_shimmer.up
+
+lists:
+  defensives:
+    - ice_block,if=health.pct < config.ice_block_hp
+    - ice_barrier,if=health.pct < config.ice_barrier_hp & buff.ice_barrier.down
+    - mirror_image,if=health.pct < config.mirror_image_hp
+
+  interrupts:
+    - counterspell,if=interrupts.target.ready
+    - dragon_breath,if=interrupts.8y.ready & !interrupts.target.ready
+    - blast_wave,if=interrupts.8y.ready & !interrupts.target.ready & !cooldown.dragon_breath.ready
+
+  combustion_rotation:
+    # During Combustion, we want to cycle Pyroblasts and Fire Blasts
+    - pyroblast,if=var.is_hot_streak
+    - pyroblast,if=var.is_pyroclasm & buff.combustion.remains > 3
+    - fire_blast,if=!var.is_hot_streak
+    - phoenix_flames,if=!var.is_hot_streak & cooldown.fire_blast.charges < 1
+    - frostfire_bolt,if=var.is_frostfire_empowerment & !var.is_hot_streak
+    - scorch,if=var.is_heat_shimmer & !var.is_hot_streak
+    - fireball
+
+  st_rotation:
+    # 1. SKB Hardcast (Highest Priority if ready)
+    - pyroblast,if=var.skb_ready,interrupt=false
+    
+    # 2. Hot Streak Spender
+    - pyroblast,if=var.is_hot_streak
+    
+    # 3. Meteor
+    - meteor,if=var.time_to_die_ok
+    
+    # 4. Pyroclasm Hardcast
+    - pyroblast,if=var.is_pyroclasm
+    
+    # 5. Conversion (Heating Up -> Hot Streak)
+    - fire_blast,if=var.is_heating_up
+    - phoenix_flames,if=var.is_heating_up & cooldown.fire_blast.charges < 1
+    
+    # 6. Frostfire / Heat Shimmer
+    - frostfire_bolt,if=var.is_frostfire_empowerment & !var.is_hot_streak
+    - scorch,if=var.is_heat_shimmer & !var.is_hot_streak
+    
+    # 7. Filler
+    - fireball,if=!var.is_moving
+    - scorch,if=target.health.pct < 30 | var.is_moving
+
+  aoe_rotation:
+    # 1. SKB Hardcast
+    - flamestrike,if=var.skb_ready,interrupt=false
+    
+    # 2. Hot Streak Spender (Flamestrike)
+    - flamestrike,if=var.is_hot_streak
+    
+    # 3. Meteor
+    - meteor,if=var.time_to_die_ok
+    
+    # 4. Conversion
+    - fire_blast,if=var.is_heating_up
+    - phoenix_flames,if=var.is_heating_up & cooldown.fire_blast.charges < 1
+    
+    # 5. Living Bomb (if talented)
+    - living_bomb,if=talent.living_bomb
+    
+    # 6. Filler
+    - fireball,if=!var.is_moving
+    - scorch,if=var.is_moving
+
+  main:
+    # Buffs
+    - arcane_intellect,if=config.auto_intellect & buff.arcane_intellect.down.any
+    
+    # Pre-combat / Utility
+    - time_warp,if=state.lust & !buff.temporal_displacement.up.any
+    
+    # General Logic
+    - call_action_list,name=interrupts
+    - call_action_list,name=defensives
+    
+    - return,if=!player.combat
+    - return,if=player.channeling
+    
+    # Combustion Management
+    - combustion,if=config.use_combustion & var.time_to_die_ok & !var.is_combustion
+    - call_action_list,name=combustion_rotation,if=var.is_combustion
+    
+    # Regular Rotation
+    - call_action_list,name=aoe_rotation,if=var.use_aoe
+    - call_action_list,name=st_rotation

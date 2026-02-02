@@ -1,13 +1,28 @@
 version: 1.4
 author: munkey
 spec: 256
-name: The Benevolent Kidnapper
+name: The Benevolent Kidnapper - DEV
 description: "he Discipline Priest rotation for benevolent control freaks. Features our signature**'Yoink & Cleanse™'** technology — because asking allies to move out of fire is inefficient when you can just forcibly relocate them instead."
 
 morphs:
   smite: void_blast
 
 config:
+  racial_usage:
+    label: "Use Racial(s)"
+    type: multi_select
+    options:
+      - label: "Arcane Torrent"
+        value: arcane_torrent
+      - label: "Will to survive"
+        value: will_to_survive
+      - label: "Will of the forsaken"
+        value: will_of_the_forsaken
+      - label: "Fireblood"
+        value: fireblood
+      - label: "Hyper Organic Light Originator"
+        valye: hyper_organic_light_originator
+    default: [0,3]
   ## Emergency Settings
   pain_suppression_usage:
     label: Auto-use PS on
@@ -387,7 +402,16 @@ lists:
     - pain_suppression,cycle=members,if=var.use_amp&config.ara_kara_kikatal_features.has(3)&var.kikatal_erupting_webs_danger&cycle.debuff.grasping_blood.up
     - power_word_shield,cycle=members,if=var.use_amp&config.ara_kara_kikatal_features.has(1)&var.kikatal_erupting_webs_danger&cycle.debuff.grasping_blood.up
   main:
-    - return,if=player.dead|!state.rotation|player.mounted
+    - target_focus,range_check=penance,if=prev_gcd.1.power_word_shield&!player.prev_gcd_1(target_focus)&!target.valid
+    - power_word_shield,cycle=tanks,members,if=cycle.buff.power_word_shield.down
+    - leap_of_faith,range_check=none,ignore_usable=true,ignore_cooldown=true,cycle=members,if=cycle.range>0&cycle.buff.power_word_shield.up&!prev_gcd.1.leap_of_feath
+    - power_infusion,if=prev_gcd.1.leap_of_faith&lastcast.leap_of_faith<2
+    - return
+
+
+
+
+
     - call_action_list,name=out_of_combat
     - angelic_feather.player,if=var.use_af
     - call_action_list,name=mouseover_friendly,if=config.MO_enabled&mouseover.exists&mouseover.alive&!player.casting&!player.channeling&mouseover.friendly
