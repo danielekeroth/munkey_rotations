@@ -1,9 +1,8 @@
 version: 1
 author: munkey
-class: paladin
-spec: protection
-name: Protection
-description: This is a basic rotation for protection
+spec: 66
+name: Hammer time
+description: "An early prototype for Protection Paladin. Mouseover pulling is currently disabled due to missing default binding."
 entry: main
 
 morphs:
@@ -11,174 +10,106 @@ morphs:
   divine_toll: hammer_of_light
 
 config:
-  auto_targeting:
-    label: "Auto-target if no target"
-    type: checkbox
-    default: true
   allow_pull_with_mo:
+    section: "Mouseover"
     label: "Pull with MO"
     type: checkbox
     default: true
-  ardent_defender_treshold:
-    label: "Ardent Defender HP%"
-    type: slider
-    min: 30
-    max: 90
-    default: 90
-  divine_shield_treshold:
-    label: "Divine Shield HP%"
-    type: slider
-    min: 5
-    max: 20
-    default: 10
-  guardian_kings_treshold:
-    label: "Guardian HP%"
-    type: slider
-    min: 20
-    max: 70
-    default: 40
   mo_enemy_min_range:
+    section: "Mouseover"
     label: "Min. range for MO pull"
     type: slider
     min: 10
     max: 30
     default: 10
   mo_enemy_max_range:
+    section: "Mouseover"
     label: "Max. range for MO pull"
     type: slider
     min: 20
     max: 30
-    default: 30
-  auto_auras:
-    label: "Auto-swap auras"
-    type: checkbox
-    default: true
-  mo_loh:
-    label: "MO Lay on Hands"
-    type: checkbox
-    default: true
-  mo_loh_treshold:
-    label: "MO LOH HP%"
-    type: slider
-    min: 1
-    max: 100
-    default: 20
+    default: 30  
   mo_ooc_res:
+    section: "Mouseover"
     label: "MO Res. OOC"
     type: checkbox
     default: true
-  wg_shining_light_self_treshold:
+  ardent_defender_threshold:
+    section: "Defensives"
+    label: "Ardent Defender HP%"
+    type: slider
+    min: 30
+    max: 90
+    default: 90
+  divine_shield_threshold:
+    section: "Defensives"
+    label: "Divine Shield HP%"
+    type: slider
+    min: 5
+    max: 20
+    default: 10
+  guardian_kings_threshold:
+    section: "Defensives"
+    label: "Guardian HP%"
+    type: slider
+    min: 20
+    max: 70
+    default: 40
+  wg_shining_light_self_threshold:
+    section: "Defensives"
     label: "Buffed WG HP% - Self"
     type: slider
     min: 1
     max: 100
     default: 80
-  wg_shining_light_party_treshold:
-    label: "Buffed WG HP% - Party"
+  wg_self_threshold:
+    label: "Word of Glory"
+    type: slider
+    min: 10
+    max: 100
+    default: 20
+  only_if_no_defensives:
+    section: "Defensives"
+    label: "Only use WG when no defensives"
+    type: checkbox
+    default: true
+  bop_self_threshold:
+    section: "Defensives"
+    label: "Blessing of Protection HP%"
     type: slider
     min: 1
     max: 100
-    default: 80
-  mo_interrupts:
-    label: "MO Interrupt"
-    type: checkbox
-    default: true
-  mo_stun:
-    label: "MO Stun"
-    type: checkbox
-    default: true
-  interrupt_delay:
-    label: "Time casted before interrupt (ms)"
-    type: slider
-    min: 100
-    max: 400
-    default: 200
-  only_important_interrupts:
-    label: "Only Important interrupts"
-    type: checkbox
-    default: true
-  blinding_light_min_casts:
-    label: "Blinding Light min casts"
+    default: 70
+  auto_loh_self_threshold:
+    section: "Defensives"
+    label: "Lay on Hands HP%"
     type: slider
     min: 1
-    max: 10
-    default: 2
+    max: 100
+    default: 10
+  auto_auras:
+    section: "Utilities"
+    label: "Auto-swap auras"
+    type: checkbox
+    default: true
   hold_cds_ttd:
     label: "Hold CDs if TTD below (s)"
     type: slider
     min: 10
     max: 30
     default: 20
-  wg_self_treshold:
-    label: "Word of Glory - Self"
-    type: slider
-    min: 10
-    max: 100
-    default: 20
-  wg_party_treshold:
-    label: "Word of Glory - Party"
-    type: slider
-    min: 10
-    max: 100
-    default: 20
-  only_if_no_defensives:
-    label: "Only use WG when no defensives"
-    type: checkbox
-    default: true
-  bos_self_treshold:
-    label: "Blessing of Sacrifice Min. HP%"
-    type: slider
-    min: 1
-    max: 100
-    default: 90
-  bos_party_treshold:
-    label: "Blessing of Sacrifice - Treshold HP%"
-    type: slider
-    min: 1
-    max: 100
-    default: 40
-  bop_self_treshold:
-    label: "Blessing of Sacrifice Min. HP%"
-    type: slider
-    min: 1
-    max: 100
-    default: 70
-  bop_party_treshold:
-    label: "Blessing of Sacrifice - Treshold HP%"
-    type: slider
-    min: 1
-    max: 100
-    default: 10
-  auto_loh_self_treshold:
-    label: "Lay on Hands - Self HP%"
-    type: slider
-    min: 1
-    max: 100
-    default: 10
-  auto_loh_party_treshold:
-    label: "Lay on Hands - party HP%"
-    type: slider
-    min: 1
-    max: 100
-    default: 10
-  auto_loh_party_safeguard:
-    label: "Lay on Hands - Min. HP%"
-    type: slider
-    min: 1
-    max: 100
-    default: 50
 
 variables:
   defensives_available: cooldown.guardian_of_ancient_kings.ready|cooldown.ardent_defender.ready|(cooldown.divine_shield.ready&talent.final_stand)
   immunity_expires_within_1s: buff.divine_shield.remains<1|buff.blessing_of_protection.remains<1
   mo_in_range: mouseover.range>=config.mo_enemy_min_range&mouseover.range<=config.mo_enemy_max_range
-  target_casting_and_delay_elapsed: target.casting.interruptible&target.casting.elapsed>config.interrupt_delay
-  should_interrupt: var.target_casting_and_delay_elapsed&(target.casting.important|!only_important_interrupts)
   hol_up: buff.hammer_of_light.up
   time_to_full_holy_power: player.gcd*(holy_power.max-holy_power)
   should_build: var.hol_up&var.time_to_full_holy_power<buff.hammer_of_light.up
-  valid_mo_target: mouseover.range<=config.mo_enemy_max_range&mouseover.range>=config.mo_enemy_min_range&mouseover.enemy
-
+  valid_mo_target: var.mo_in_range&mouseover.enemy&mouseover.alive&mouseover.attackable
+  auto_aura_needs_swap: 
+    (mounted&buff.crusader_aura.down)|
+    (!mounted&buff.devotion_aura.down)
 lists:
   opener:
     - consecration,if=target.range=5&!buff.consecration.up&!player.moving
@@ -195,17 +126,10 @@ lists:
     - blessed_hammer,if=target.debuff.remains(blessed_hammer)<2|(cooldown.judgment.remains<player.gcd>?player.gcd.remains|cooldown.hammer_of_wrath.remains<player.gcd>?player.gcd.remains)
     - hammer_of_wrath,if=buff.avenging_wrath.up
     - judgment
-  mouseover_enemy:
-    - hand_of_reckoning.mouseover,if=mouseover.enemy&&cooldown.hand_of_reckoning.ready
-    - avengers_shield.mouseover,if=cooldown.avengers_shield.ready&var.valid_mo_target
-    - divine_toll.mouseover,if=cooldown.divine_toll.ready&var.valid_mo_target
-  mouseover_interrupt:
-    - avengers_shield.mouseover,if=config.mo_interrupts&interrupts.mouseover.ready&var.valid_mo_target
-    - hammer_of_justice.mouseover,if=config.mo_stun&interrupts.mouseover.stun.ready&var.valid_mo_target
-  interrupts:
-    - blinding_light,if=interrupts.10y.count>=config.blinding_light_min_casts&cooldown.blinding_light.ready
-    - rebuke,if=var.should_interrupt
-    - avengers_shield,if=var.should_interrupt
+  #mouseover_enemy:
+  #  - hand_of_reckoning,if=mouseover.enemy&mouseover.targeting_party&mouseover.alive&cooldown.hand_of_reckoning.ready
+  #  - avengers_shield,range_check=mouseover,if=cooldown.avengers_shield.ready
+  #  - divine_toll,range_check=mouseover,if=cooldown.divine_toll.ready
   rotation:
     - call_action_list,name=opener,if=!var.should_build
     - call_action_list,name=builders,if=var.should_build
@@ -213,43 +137,34 @@ lists:
     - avengers_shield,if=enemies.combat.8y>1&state.aoe
     - call_action_list,name=cooldowns,if=fight_remains>config.hold_cds_ttd
     - shield_of_the_righteous,if=((buff.bulwark_of_righteous_fury.up&!buff.shield_of_the_righteous.up)|holy_power=5)&!var.should_build
-    - call_action_list,name=builders,if=holy_power<5|(holy_power=3&buff.avenging_wrath.up&cooldown.judgment.ready)|(holy_power=3&buff.avenging_wrath.up&cooldown.judgment.ready)
+    - call_action_list,name=builders,if=holy_power<5|(holy_power=3&buff.avenging_wrath.up&cooldown.judgment.ready)
     - avengers_shield
     - blessed_hammer
   defensives:
-    - guardian_of_ancient_kings,if=health.pct<config.guardian_kings_treshold
-    - ardent_defender,if=health.pct<config.ardent_defender_treshold&buff.guardian_of_ancient_kings.down
-    - divine_shield,if=health.pct<config.divine_shield_treshold&buff.ardent_defender.down&buff.guardian_of_ancient_kings.down&talent.final_stand
+    - guardian_of_ancient_kings,if=health.pct<config.guardian_kings_threshold
+    - ardent_defender,if=health.pct<config.ardent_defender_threshold&buff.guardian_of_ancient_kings.down
+    - divine_shield,if=health.pct<config.divine_shield_threshold&buff.ardent_defender.down&buff.guardian_of_ancient_kings.down&talent.final_stand
   shining_light:
-    - word_of_glory.player,if=health.pct<=100&holy_power>=3
-    - word_of_glory.mouseover,if=mouseover.exists&mouseover.friendly&mouseover.health.pct<=100
+    - word_of_glory,if=health.pct<=config.wg_shining_light_self_threshold&holy_power>=3
   emergency:
     - call_action_list,name=shining_light,if=buff.shining_light.up
-    - word_of_glory.player,if=health.pct<config.wg_self_treshold&((config.only_if_no_defensives&!var.defensives_available)|(!config.only_if_no_defensives))&holy_power>3
-    - word_of_glory,cycle=members,if=health.pct<config.wg_party_treshold&holy_power>3
-    - blessing_of_sacrifice,cycle=members,if=health.pct<config.bos_party_treshold&player.health.pct<config.bos_self_treshold
-    - blessing_of_protection,cycle=members,if=health.pct<config.bop_party_treshold&player.health.pct<config.bop_self_treshold
-    - lay_on_hands.player,if=health.pct<config.auto_loh_self_treshold&var.immunity_expires_within_1s
-    - lay_on_hands,cycle=members,if=health.pct<config.auto_loh_party_treshold&player.health.pct<config.auto_loh_party_safeguard
+    - word_of_glory,if=health.pct<config.wg_self_threshold&((config.only_if_no_defensives&!var.defensives_available)|(!config.only_if_no_defensives))&holy_power>3
+    - blessing_of_protection,if=player.health.pct<config.bop_self_threshold
+    - lay_on_hands,if=health.pct<config.auto_loh_self_threshold&var.immunity_expires_within_1s
   aura_management:
-    - crusader_aura.player,if=player.mounted&buff.crusader_aura.down
-    - devotion_aura.player,if=!player.mounted&buff.devotion_aura.down
-    - concentration_aura.player,if=!player.mounted&buff.concentration_aura.down&!buff.devotion_aura.mine
+    - crusader_aura,range_check=none,if=player.mounted&buff.crusader_aura.down
+    - devotion_aura,range_check=none,if=!player.mounted&buff.devotion_aura.down
   main:
-    - return,if=!state.rotation|state.blocked_inputs
-    - call_action_list,name=aura_management,if=config.auto_auras
-    - return,if=player.mounted
+    - call_action_list,name=sanity_checks
     - call_action_list,name=spell_queue
-    - cleanse_toxins.mouseover,if=mouseover.exists&mouseover.friendly&mouseover.debuff.remains(venomous_spit)>0
-    - call_action_list,name=mouseover_dispell,if=mouseover.exists&mouseover.friendly&mouseover.debuff.stacks(venomous_spit)>1
-    - call_action_list,name=mouseover_enemy,if=mouseover.exists&mouseover.enemy&config.allow_pull_with_mo&var.mo_in_range
+    - call_action_list,name=auto_target
+    - run_action_list,name=aura_management,if=config.auto_auras&var.auto_aura_needs_swap
     - redemption,if=mouseover.exists&mouseover.friendly&!mouseover.alive&!player.combat
-    - lay_on_hands,if=config.mo_loh&mouseover.exists&mouseover.friendly&mouseover.health.pct<config.mo_loh_treshold
-    - return,if=!player.combat&(!target.valid|target.range>30)
+    #- call_action_list,name=mouseover_enemy,if=config.allow_pull_with_mo&var.valid_mo_target
+    - return,if=!player.combat
+    - return,if=player.mounted
     - call_action_list,name=interrupts
-    - call_action_list,name=mouseover_interrupt
     - call_action_list,name=defensives
-    - call_action_list,name=mouseover_combat_res,if=target.enemy&mouseover.friendly&!mouseover.alive
-    #- call_action_list,name=emergency
-    - call_action_list,name=shining_light,if=buff.shining_light.up&group.lowest.health.pct<config.wg_shining_light_self_treshold<?config.wg_shining_light_party_treshold
+    - run_action_list,name=mouseover_combat_res,if=target.enemy&mouseover.friendly&!mouseover.alive
+    - call_action_list,name=emergency
     - call_action_list,name=rotation

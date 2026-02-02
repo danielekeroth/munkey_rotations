@@ -1,0 +1,74 @@
+version: 1
+author: munkey
+spec: 252
+name: Unholy Midnight
+description: "Optimized Unholy Death Knight rotation for Midnight pre-patch. Includes Reanimation/Magus sync logic and Festering Scythe maintenance."
+
+morphs:
+  festering_strike: festering_scythe
+
+lists:
+  main:
+    - call_action_list,name=sanity_checks
+    - call_action_list,name=spell_queue
+    - call_action_list,name=auto_target
+    - return,if=!player.combat
+    - return,if=player.channeling
+
+    # Defensives and Utility
+    - call_action_list,name=defensives
+
+    # Interrupts
+    - mind_freeze,if=interrupts.target.ready
+    
+    # Rotation Dispatch
+    - call_action_list,name=aoe,if=active_enemies>=2
+    - call_action_list,name=st
+
+  st:
+    - outbreak,if=dot.virulent_plague.remains<1.5|!dot.virulent_plague.ticking
+
+    - army_of_the_dead
+    
+    - dark_transformation
+    - potion,if=buff.dark_transformation.up|cooldown.dark_transformation.remains<2
+    - trinket_1,if=buff.dark_transformation.up|cooldown.dark_transformation.remains<2
+    - trinket_2,if=buff.dark_transformation.up|cooldown.dark_transformation.remains<2
+
+    - putrefy,if=action.putrefy.charges=2|!talent.reaping|(talent.reaping&buff.dark_transformation.up)|time<20
+
+    - soul_reaper
+    
+    - festering_scythe,if=debuff.festering_scythe.down|debuff.festering_scythe.remains<3
+
+    - death_coil,if=buff.sudden_doom.react|runic_power>=80
+    
+    - festering_strike,if=debuff.festering_wound.stack=0
+
+    - scourge_strike,if=debuff.festering_wound.stack>0
+    
+    - death_coil
+
+  aoe:
+    - outbreak,if=dot.virulent_plague.remains<1.5|!dot.virulent_plague.ticking
+    - army_of_the_dead
+    
+    - dark_transformation
+    - potion,if=buff.dark_transformation.up
+    - trinket_1,if=buff.dark_transformation.up
+    - trinket_2,if=buff.dark_transformation.up
+    - putrefy
+    - soul_reaper
+    - festering_scythe,if=debuff.festering_scythe.down|debuff.festering_scythe.remains<3
+    - death_coil,if=(buff.sudden_doom.react|runic_power>=80)&active_enemies<=3
+    - epidemic,if=(buff.sudden_doom.react|runic_power>=80)&active_enemies>=4
+    - festering_strike,if=debuff.festering_wound.stack=0
+    - scourge_strike,if=debuff.festering_wound.stack>0
+    - death_coil,if=active_enemies<=3
+    - epidemic,if=active_enemies>=4
+
+  defensives:
+    - icebound_fortitude,if=player.health.pct<35|player.stunned
+    - death_strike,if=player.health.pct<50
+    - death_pact,if=player.health.pct<20
+    - lichborne,if=player.health.pct<30&talent.unholy_endurance
