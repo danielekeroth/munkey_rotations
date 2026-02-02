@@ -1,6 +1,7 @@
 version: 1
 author: munkey
 class: druid
+blocked: true
 spec: feral
 name: Feral M+
 description: This is a basic rotation for feral in M+ content

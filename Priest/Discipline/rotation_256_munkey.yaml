@@ -2,7 +2,7 @@ version: 1.4
 author: munkey
 spec: 256
 blocked: true
-name: The Benevolent Kidnapper - DEV
+name: The Benevolent Kidnapper
 description: "he Discipline Priest rotation for benevolent control freaks. Features our signature**'Yoink & Cleanse™'** technology — because asking allies to move out of fire is inefficient when you can just forcibly relocate them instead."
 
 morphs:
