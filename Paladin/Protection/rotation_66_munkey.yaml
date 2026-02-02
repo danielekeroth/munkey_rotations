@@ -47,7 +47,7 @@ config:
     label: "Guardian HP%"
     default: 40
   wg_self_threshold:
-    label: "Word of Glory (UNSUPPORTED)"
+    label: "Word of Glory"
     type: slider
     min: 10
     max: 100
@@ -134,9 +134,9 @@ lists:
     - ardent_defender,if=health.pct<config.ardent_defender_threshold&buff.guardian_of_ancient_kings.down
     - divine_shield,if=health.pct<config.divine_shield_threshold&buff.ardent_defender.down&buff.guardian_of_ancient_kings.down&talent.final_stand
   #shining_light:
-  #  - word_of_glory,if=holy_power>=3
+    #- word_of_glory,if=action.
   emergency:
-    #- call_action_list,name=shining_light,if=buff.shining_light.up
+    #- call_action_list,name=shining_light,if=buff.shining_light.stack=2
     - word_of_glory,if=health.pct<config.wg_self_threshold&holy_power>3
     - lay_on_hands,if=health.pct<config.auto_loh_self_threshold&var.immunity_expires_within_1s
   aura_management:
