@@ -11,8 +11,33 @@ morphs:
     voidform: void_volley
 
 config:
+  angelic_feather_usage:
+    section: "Angelic Feather"
+    label: Use Angelic Feather
+    type: dropdown
+    options:
+      - label: "None"
+        value: 1
+      - label: "Only in combat"
+        value: 2
+      - label: "Only out of combat"
+        value: 3
+      - label: "Always"
+        value: 4
+    default: 3
+  angelic_feather_movement_time:
+    section: "Angelic Feather"
+    label: Angelic Feather Movement
+    type: slider
+    min: 0
+    max: 5
+    default: 2
 
 variables:
+    use_af: 
+        ((config.angelic_feather_usage=2&player.combat)
+        |(config.angelic_feather_usage=3&!player.combat)
+        |(config.angelic_feather_usage=4))&!buff.angelic_feather.up&moving.time>=config.angelic_feather_movement_time
     channeling_mind_flay: target.debuff.remains(15407)>0
     need_swp_refresh: target.debuff.remains(shadow_word_pain)<=gcd*2
     need_vamp_touch_refresh: target.debuff.remains(vampiric_touch)<=gcd*2
@@ -34,12 +59,13 @@ variables:
 lists:
     main:
         - return,if=!state.rotation|mounted
+        - angelic_feather.player,if=var.use_af
+        - shadowform,range_check=none,if=buff.shadowform.down
         - call_action_list,name=sanity_checks
         - call_action_list,name=spell_queue
         - call_action_list,name=auto_heal
         - call_action_list,name=auto_target_ranged
-        - return,if=casting|channeling
-        - shadowform,range_check=none,if=buff.shadowform.down
+        - return,if=(casting|channeling)&!var.channeling_mind_flay
         - tentacle_slam,if=player.moving
         - shadow_word_death,if=player.moving
         - shadow_word_pain,if=player.moving
@@ -48,6 +74,8 @@ lists:
         - vampiric_touch,interrupt=var.channeling_mind_flay,if=var.need_vamp_touch_refresh
         - voidform,interrupt=var.channeling_mind_flay,if=buff.voidform.down
         - power_infusion
+        - trinket_1,if=trinket_1.ready&trinket_1.usable
+        - trinket_2,if=trinket_2.ready&trinket_2.usable
         - shadow_word_death,interrupt=var.channeling_mind_flay
         - void_blast,interrupt=var.channeling_mind_flay,if=var.should_void_blast&cooldown.void_blast.ready
         - shadow_word_madness,interrupt=var.channeling_mind_flay,if=var.should_swm
