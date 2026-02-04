@@ -11,6 +11,15 @@ morphs:
     voidform: void_volley
 
 config:
+  rotation_source:
+    label: Rotation Source
+    type: dropdown
+    options:
+      - label: "Wowhead"
+        value: 1
+      - label: "Method"
+        value: 2
+    default: 1
   angelic_feather_usage:
     section: "Angelic Feather"
     label: Use Angelic Feather
@@ -34,6 +43,8 @@ config:
     default: 2
 
 variables:
+    use_wowhead: config.rotation_source=1
+    use_method: config.rotation_source=2
     use_af: 
         ((config.angelic_feather_usage=2&player.combat)
         |(config.angelic_feather_usage=3&!player.combat)
@@ -42,21 +53,112 @@ variables:
     need_swp_refresh: target.debuff.remains(shadow_word_pain)<=gcd*2
     need_vamp_touch_refresh: target.debuff.remains(vampiric_touch)<=gcd*2
     should_void_blast: target.debuff.remains(shadow_word_madness)>0|buff.entropic_rift.remains<=2
-    should_swm: target.debuff.remains(shadow_word_madness)<gcd*2|insanity.deficit<20|buff.entropic_rift.up
+    should_swm: insanity.deficit<30|buff.entropic_rift.up
     should_cancel_mind_flay: (var.need_swp_refresh&cooldown.shadow_word_pain.ready)|
-        (var.need_vamp_touch_refresh&(cooldown.tentacle_slam.ready|cooldown.vampiric_touch.ready))|
-        (buff.voidform.down&cooldown.voidform.ready)|
-        cooldown.shadow_word_death.ready|
-        (var.should_void_blast&cooldown.voidblast.ready)|
-        (var.should_swm&cooldown.shadow_word_madness.ready)|
-        (cooldown.void_volley.ready&buff.voidform.up)|
-        (cooldown.void_torrent.ready&buff.voidform.down)|
-        cooldown.mind_blast.ready|
-        cooldown.shadow_word_madness.ready|
-        cooldown.tentacle_slam.ready|
-        cooldown.shadow_word_death.ready
+        (var.need_vamp_touch_refresh&(cooldown.vampiric_touch.ready|cooldown.tentacle_slam.ready))|
+        insanity.deficit<20
 
 lists:
+# ----------------------------------------------------------------------------
+    # WOWHEAD ROTATION
+    # ----------------------------------------------------------------------------
+    wowhead_main:
+        # 1. Maintain DoTs (Current Target & Spreading)
+        - vampiric_touch,if=dot.vampiric_touch.refreshable&target.time_to_die>10
+        - shadow_word_pain,if=dot.shadow_word_pain.refreshable&target.time_to_die>10&!talent.misery.enabled
+        # Switch target if current is good but others need DoTs
+        - target_enemy,if=active_enemies>1&nameplates.debuff.vampiric_touch.count<active_enemies&!dot.vampiric_touch.refreshable
+        - target_enemy,if=active_enemies>1&nameplates.debuff.shadow_word_pain.count<active_enemies&!dot.shadow_word_pain.refreshable&!talent.misery.enabled
+        
+        # 2. Cooldowns
+        - mindbender,if=cooldown.mindbender.ready
+        - shadowfiend,if=cooldown.shadowfiend.ready
+        - dark_ascension,if=cooldown.dark_ascension.ready
+        - void_eruption,if=cooldown.void_eruption.ready
+        - trinket_1,if=buff.voidform.up|buff.dark_ascension.up
+        - trinket_2,if=buff.voidform.up|buff.dark_ascension.up
+        - power_infusion,if=buff.voidform.up|buff.dark_ascension.up
+        - halo,if=cooldown.halo.ready
+        
+        # 3. Spend Insanity
+        - shadow_word_madness,if=insanity.deficit<30|buff.voidform.up|buff.dark_ascension.up|target.time_to_die<cooldown.shadow_word_madness.remains
+        
+        # 4. Generate Insanity and Deal Damage
+        - void_volley,if=cooldown.void_volley.ready
+        - mind_blast,if=charges_fractional>=1.8|buff.dark_ascension.up
+        - void_torrent,if=cooldown.void_torrent.ready
+        - mind_flay_insanity,if=buff.shadow_word_madness.up
+        
+        # 5. Execute Phase
+        - shadow_word_death,if=target.health.pct<20
+        
+        # 6. Filler
+        - mind_flay
+
+    # ----------------------------------------------------------------------------
+    # METHOD ROTATION
+    # ----------------------------------------------------------------------------
+    method_archon:
+        # Archon Priority
+        - shadow_word_pain,if=dot.shadow_word_pain.down&talent.invoked_nightmare.enabled
+        - vampiric_touch,if=dot.vampiric_touch.refreshable
+        # Spread Logic
+        - target_enemy,if=active_enemies>1&nameplates.debuff.vampiric_touch.count<active_enemies&!dot.vampiric_touch.refreshable
+        
+        - halo
+        - voidform
+        - trinket_1,if=buff.voidform.up
+        - trinket_2,if=buff.voidform.up
+        - power_infusion
+        - void_volley
+        - shadow_word_madness,if=insanity.deficit<30|buff.shadow_word_madness.down|buff.shadow_word_madness.remains<2
+        - mind_flay_insanity,if=buff.shadow_word_madness.up
+        - mind_blast
+        - shadow_word_madness,if=buff.voidform.up
+        - tentacle_slam
+        - shadow_word_death,if=target.health.pct<20
+        - mind_flay
+        - shadow_word_pain,if=player.moving
+
+    method_voidweaver:
+        # Voidweaver Priority
+        - shadow_word_pain,if=debuff.shadow_word_pain.down&talent.invoked_nightmare.enabled
+        - vampiric_touch,if=debuff.vampiric_touch.refreshable
+        # Spread Logic
+        - target_enemy,if=active_enemies>1&nameplates.debuff.vampiric_touch.count<(active_enemies<?10)&!debuff.vampiric_touch.refreshable
+        
+        - voidform
+        - trinket_1,if=buff.voidform.up&trinket_1.usable
+        - trinket_2,if=buff.voidform.up&trinket_2.usable
+        - power_infusion
+        - void_blast,if=buff.shadow_word_madness.up|buff.entropic_rift.remains<2
+        - shadow_word_madness,if=insanity.deficit<30|buff.shadow_word_madness.down|buff.shadow_word_madness.remains<2|buff.entropic_rift.up
+        - void_volley
+        - void_torrent
+        - mind_blast
+        - shadow_word_madness
+        - tentacle_slam
+        - shadow_word_death,if=target.health.pct<20
+        - mind_flay
+        - shadow_word_pain,if=player.moving
+
+    method_main:
+        # Select Archon or Voidweaver logic
+        # Assuming Archon if Halo is talented, otherwise Default or Voidweaver logic
+        # We can also check specific Hero Talent nodes if available (e.g., talent.voidweaver)
+        - call_action_list,name=method_archon,if=talent.halo.enabled
+        - call_action_list,name=method_voidweaver
+
+    # ----------------------------------------------------------------------------
+    # SHARED / LEGACY LISTS
+    # ----------------------------------------------------------------------------
+    # Legacy 'main' list removed or replaced by router above.
+    
+    # Simple list for shared logic
+    mind_void_blast:
+        - mind_blast
+        - void_blast
+        
     main:
         - return,if=!state.rotation|mounted
         - angelic_feather.player,if=var.use_af
@@ -65,25 +167,7 @@ lists:
         - call_action_list,name=spell_queue
         - call_action_list,name=auto_heal
         - call_action_list,name=auto_target_ranged
-        - return,if=(casting|channeling)&!var.channeling_mind_flay
-        - tentacle_slam,if=player.moving
-        - shadow_word_death,if=player.moving
-        - shadow_word_pain,if=player.moving
-        - shadow_word_pain,interrupt=var.channeling_mind_flay,if=var.need_swp_refresh
-        - tentacle_slam,interrupt=var.channeling_mind_flay,if=var.need_vamp_touch_refresh
-        - vampiric_touch,interrupt=var.channeling_mind_flay,if=var.need_vamp_touch_refresh
-        - voidform,interrupt=var.channeling_mind_flay,if=buff.voidform.down
-        - power_infusion
-        - trinket_1,if=trinket_1.ready&trinket_1.usable
-        - trinket_2,if=trinket_2.ready&trinket_2.usable
-        - shadow_word_death,interrupt=var.channeling_mind_flay
-        - void_blast,interrupt=var.channeling_mind_flay,if=var.should_void_blast&cooldown.void_blast.ready
-        - shadow_word_madness,interrupt=var.channeling_mind_flay,if=var.should_swm
-        - voidform,interrupt=var.channeling_mind_flay,if=buff.voidform.up
-        - void_torrent,interrupt=var.channeling_mind_flay,if=buff.voidform.down&cooldown.void_torrent.ready
-        - void_blast,interrupt=var.channeling_mind_flay&cooldown.void_blast.ready
-        - mind_blast,interrupt=var.channeling_mind_flay&cooldown.mind_blast.ready
-        - shadow_word_madness,interrupt=var.channeling_mind_flay
-        - tentacle_slam,interrupt=var.channeling_mind_flay
-        - shadow_word_death,interrupt=var.channeling_mind_flay
-        - mind_flay
+        
+        # Rotation Routing
+        - call_action_list,name=wowhead_main,if=var.use_wowhead
+        - call_action_list,name=method_main,if=var.use_method
