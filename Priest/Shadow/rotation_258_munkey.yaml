@@ -6,7 +6,6 @@ name: Shadow
 description: "M+ Focused Shadow Priest by munkey"
 
 morphs:
-    void_torrent: void_volley
     mind_blast: void_blast
     voidform: void_volley
 
@@ -57,6 +56,8 @@ variables:
     should_cancel_mind_flay: (var.need_swp_refresh&cooldown.shadow_word_pain.ready)|
         (var.need_vamp_touch_refresh&(cooldown.vampiric_touch.ready|cooldown.tentacle_slam.ready))|
         insanity.deficit<20
+    missing_vamp_touch: active_enemies-nameplates.debuff.vampiric_touch.count
+    missing_sw_p: active_enemies-nameplates.debuff.shadow_word_pain.count
 
 lists:
 # ----------------------------------------------------------------------------
@@ -64,19 +65,23 @@ lists:
     # ----------------------------------------------------------------------------
     wowhead_main:
         # 1. Maintain DoTs (Current Target & Spreading)
-        - vampiric_touch,if=dot.vampiric_touch.refreshable&target.time_to_die>10
-        - shadow_word_pain,if=dot.shadow_word_pain.refreshable&target.time_to_die>10&!talent.misery.enabled
+        - vampiric_touch,if=debuff.vampiric_touch.refreshable&target.time_to_die>10
+        - shadow_word_pain,if=debuff.shadow_word_pain.refreshable&target.time_to_die>10&!talent.misery.enabled
+        
+        # AoE Apply with Tentacle Slam (up to 8 targets in 12.0 / 6 in traditional) - checks count vs active
+        - tentacle_slam,if=active_enemies>1&nameplates.debuff.vampiric_touch.count<active_enemies
+        
         # Switch target if current is good but others need DoTs
-        - target_enemy,if=active_enemies>1&nameplates.debuff.vampiric_touch.count<active_enemies&!dot.vampiric_touch.refreshable
-        - target_enemy,if=active_enemies>1&nameplates.debuff.shadow_word_pain.count<active_enemies&!dot.shadow_word_pain.refreshable&!talent.misery.enabled
+        - target_enemy,if=active_enemies>1&nameplates.debuff.vampiric_touch.count<active_enemies&!debuff.vampiric_touch.refreshable
+        - target_enemy,if=active_enemies>1&nameplates.debuff.shadow_word_pain.count<active_enemies&!debuff.shadow_word_pain.refreshable&!talent.misery.enabled
         
         # 2. Cooldowns
         - mindbender,if=cooldown.mindbender.ready
         - shadowfiend,if=cooldown.shadowfiend.ready
         - dark_ascension,if=cooldown.dark_ascension.ready
         - void_eruption,if=cooldown.void_eruption.ready
-        - trinket_1,if=buff.voidform.up|buff.dark_ascension.up
-        - trinket_2,if=buff.voidform.up|buff.dark_ascension.up
+        - trinket_1,if=(buff.voidform.up|buff.dark_ascension.up)&trinket_1.usable
+        - trinket_2,if=(buff.voidform.up|buff.dark_ascension.up)&trinket_2.usable
         - power_infusion,if=buff.voidform.up|buff.dark_ascension.up
         - halo,if=cooldown.halo.ready
         
@@ -100,15 +105,17 @@ lists:
     # ----------------------------------------------------------------------------
     method_archon:
         # Archon Priority
-        - shadow_word_pain,if=dot.shadow_word_pain.down&talent.invoked_nightmare.enabled
-        - vampiric_touch,if=dot.vampiric_touch.refreshable
+        - shadow_word_pain,if=debuff.shadow_word_pain.down&talent.invoked_nightmare.enabled
+        - vampiric_touch,if=debuff.vampiric_touch.refreshable
+        
         # Spread Logic
-        - target_enemy,if=active_enemies>1&nameplates.debuff.vampiric_touch.count<active_enemies&!dot.vampiric_touch.refreshable
+        - tentacle_slam,if=active_enemies>1&nameplates.debuff.vampiric_touch.count<active_enemies
+        - target_enemy,if=active_enemies>1&nameplates.debuff.vampiric_touch.count<active_enemies&!debuff.vampiric_touch.refreshable
         
         - halo
         - voidform
-        - trinket_1,if=buff.voidform.up
-        - trinket_2,if=buff.voidform.up
+        - trinket_1,if=buff.voidform.up&trinket_1.usable
+        - trinket_2,if=buff.voidform.up&trinket_2.usable
         - power_infusion
         - void_volley
         - shadow_word_madness,if=insanity.deficit<30|buff.shadow_word_madness.down|buff.shadow_word_madness.remains<2
@@ -120,25 +127,39 @@ lists:
         - mind_flay
         - shadow_word_pain,if=player.moving
 
-    method_voidweaver:
-        # Voidweaver Priority
-        - shadow_word_pain,if=debuff.shadow_word_pain.down&talent.invoked_nightmare.enabled
-        - vampiric_touch,if=debuff.vampiric_touch.refreshable
-        # Spread Logic
-        - target_enemy,if=active_enemies>1&nameplates.debuff.vampiric_touch.count<(active_enemies<?10)&!debuff.vampiric_touch.refreshable
-        
-        - voidform
-        - trinket_1,if=buff.voidform.up&trinket_1.usable
-        - trinket_2,if=buff.voidform.up&trinket_2.usable
+    method_voidweaver_voidform:
+        - trinket_1,if=trinket_1.usable
+        - trinket_2,if=trinket_2.usable
         - power_infusion
-        - void_blast,if=buff.shadow_word_madness.up|buff.entropic_rift.remains<2
-        - shadow_word_madness,if=insanity.deficit<30|buff.shadow_word_madness.down|buff.shadow_word_madness.remains<2|buff.entropic_rift.up
-        - void_volley
-        - void_torrent
-        - mind_blast
-        - shadow_word_madness
-        - tentacle_slam
-        - shadow_word_death,if=target.health.pct<20
+        - void_blast,interrupt=true,if=buff.shadow_word_madness.up|buff.entropic_rift.remains<2|buff.shadowy_insight.up
+        - shadow_word_madness,interrupt=true,if=insanity.deficit<30|buff.shadow_word_madness.down|buff.shadow_word_madness.remains<2|buff.entropic_rift.up
+        - void_volley,interrupt=true
+        - void_torrent,interrupt=true
+        - mind_blast,interrupt=true
+        - shadow_word_madness,interrupt=true
+        - tentacle_slam,interrupt=true
+
+    method_voidweaver:
+        - call_action_list,name=method_voidweaver_voidform,if=buff.voidform.up
+        - mind_blast,interrupt=true,if=buff.shadowy_insight.up
+        # Voidweaver Priority
+        - shadow_word_pain,interrupt=true,if=debuff.shadow_word_pain.down&talent.invoked_nightmare.enabled
+        - tentacle_slam,interrupt=true,if=active_enemies>1&cooldown.tentacle_slam.charges=2
+        
+        # Spread Logic
+        - tentacle_slam,interrupt=true,if=active_enemies>1&var.missing_vamp_touch>=5
+        - vampiric_touch,interrupt=true,if=debuff.vampiric_touch.refreshable&var.missing_vamp_touch<5
+        - target_enemy,if=var.missing_vamp_touch>0&!debuff.vampiric_touch.refreshable
+
+        - voidform,interrupt=true
+        - void_blast,interrupt=true,if=buff.shadow_word_madness.up|buff.entropic_rift.remains<2
+        - shadow_word_madness,interrupt=true,if=insanity.deficit<30|buff.shadow_word_madness.down|buff.shadow_word_madness.remains<2|buff.entropic_rift.up
+        - void_volley,interrupt=true
+        - void_torrent,interrupt=true
+        - mind_blast,interrupt=true
+        - shadow_word_madness,interrupt=true
+        - tentacle_slam,interrupt=true
+        - shadow_word_death,interrupt=true,if=target.health.pct<20
         - mind_flay
         - shadow_word_pain,if=player.moving
 
@@ -147,7 +168,7 @@ lists:
         # Assuming Archon if Halo is talented, otherwise Default or Voidweaver logic
         # We can also check specific Hero Talent nodes if available (e.g., talent.voidweaver)
         - call_action_list,name=method_archon,if=talent.halo.enabled
-        - call_action_list,name=method_voidweaver
+        - call_action_list,name=method_voidweaver,if=!player.channeling|var.channeling_mind_flay
 
     # ----------------------------------------------------------------------------
     # SHARED / LEGACY LISTS
@@ -167,7 +188,6 @@ lists:
         - call_action_list,name=spell_queue
         - call_action_list,name=auto_heal
         - call_action_list,name=auto_target_ranged
-        
         # Rotation Routing
-        - call_action_list,name=wowhead_main,if=var.use_wowhead
-        - call_action_list,name=method_main,if=var.use_method
+        - run_action_list,name=wowhead_main,if=var.use_wowhead
+        - run_action_list,name=method_main,if=var.use_method
