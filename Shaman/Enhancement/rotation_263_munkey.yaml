@@ -215,8 +215,8 @@ lists:
     # 5. Cooldowns
     - ascendance
     - doom_winds,if=state.cds
-    - trinket_1,if=trinket_1.sync&state.cds
-    - trinket_2,if=trinket_2.sync&state.cds
+    - trinket_1,if=trinket_1.usable&trinket_1.ready&state.cds
+    - trinket_2,if=trinket_2.usable&trinket_2.ready&state.cds
     
     # 6. Primordial Storm (10 MSW)
     - primordial_storm,override=sundering,if=buff.primordial_storm.up&buff.maelstrom_weapon.stack>=10
