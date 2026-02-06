@@ -2,7 +2,7 @@ version: "1.0.0"
 spec: 254                           # Marksmanship Hunter
 name: "Marksmanship Hunter"
 description: "WoWHead/IcyVeins/Method.gg profiles with Sentinel/Dark Ranger hero talent detection"
-author: "Kimi"
+author: "Munkey"
 
 config:
   rotation_profile:
