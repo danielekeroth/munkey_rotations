@@ -1,35 +1,18 @@
-# ============================================================================
-# FERAL DRUID ROTATION - Multi-Profile (WoWHead / Icy Veins / Method.gg)
-# ============================================================================
-# version: "1.0.0"
-# spec: 103                           # Feral Druid
-# name: "Feral Druid - Multi-Profile"
-# description: "WoWHead vs Icy Veins vs Method.gg profiles with hero talent detection"
-# author: "kimi"
-# date: "2026-02-06"
-# patch: "12.0"
-# ============================================================================
-
 version: "1.0.0"
 spec: 103
 name: "Feral Druid - Multi-Profile"
 description: "WoWHead vs Icy Veins vs Method.gg profiles with Druid of the Claw/Wildstalker detection"
-author: "kimi"
+author: "munkey"
 date: "2026-02-06"
 patch: "12.0"
-
-# ----------------------------------------------------------------------------
-# ROOT LEVEL: Movement handling (NOT in variables section!)
-# ----------------------------------------------------------------------------
-# Feral is melee with mostly instant casts, but has some casts during Convoke
-movement_allowed: true
-
 # ----------------------------------------------------------------------------
 # CONFIG: User settings UI
 # ----------------------------------------------------------------------------
 config:
   # Profile selection (different guide sources)
   rotation_profile:
+    section: 'Rotational'
+    label: 'Rotation source'
     type: dropdown
     options:
       - label: "WoWHead (Guiltyas)"
@@ -38,36 +21,72 @@ config:
         value: icyveins
       - label: "Method.gg (Cheesey)"
         value: method
-    default: 0
+    default: 2
 
   # AOE threshold for switching to AOE rotation
   aoe_threshold:
+    section: 'Rotational'
+    label: 'AoE Treshold'
     type: slider
     min: 2
     max: 8
-    value: 3
+    default: 3
 
   # Defensive abilities toggle
   use_defensives:
+    section: 'Rotational'
+    label: 'Use defensives'
     type: checkbox
-    value: true
+    default: true
+
+  auto_motw:
+    section: 'Rotational'
+    label: 'Auto MOTW'
+    type: checkbox
+    default: true
 
   # Hero talent override
   hero_talent_mode:
+    section: 'Rotational'
+    label: 'Hero Talents'
     type: dropdown
     options:
       - label: "Auto (Detect)"
-        value: auto
+        value: 1
       - label: "Druid of the Claw"
-        value: claw
+        value: 2
       - label: "Wildstalker"
-        value: wildstalker
+        value: 3
     default: 0
 
   # Lunar Inspiration toggle (affects Moonfire usage)
   use_lunar_inspiration:
+    section: 'Rotational'
+    label: 'Use Lunar Inspiration'
     type: checkbox
-    value: true
+    default: true
+
+  ### Defensives
+  barkskin_treshold:
+    section: 'Defensives'
+    label: 'Barkskin HP%'
+    min: 0
+    max: 100
+    default: 50
+
+  survival_instincts_treshold:
+    section: 'Defensives'
+    label: 'Survival Instincts HP%'
+    min: 0
+    max: 100
+    default: 30
+
+  regrowth_treshold:
+    section: 'Defensives'
+    label: 'Regrowth HP%'
+    min: 0
+    max: 100
+    default: 60
 
 # ----------------------------------------------------------------------------
 # VARIABLES: Reusable expressions
@@ -124,7 +143,9 @@ lists:
   # ========================================================================
   main:
     # Sanity checks
-    - return,if=player.dead
+    - return,if=player.dead|mounted|!state.rotation|state.blocked_inputs
+    - mark_of_the_wild,range_check=none,if=config.auto_motw&group.count(cycle.buff.mark_of_the_wild.down&cycle.range>0&cycle.range<=40),delay=10000
+    - prowl,range_check=none,if=buff.5215.down&!player.combat
     - return,if=!player.combat&!target.combat
 
     # Defensive handling
@@ -154,21 +175,27 @@ lists:
   defensives:
     - barkskin,if=health.pct<50&!buff.barkskin.up
     - survival_instincts,if=health.pct<30&!buff.survival_instincts.up
-    - renewal,if=talent.renewal&health.pct<40
     - regrowth,if=health.pct<60&!buff.regrowth.up
 
   # ========================================================================
   # INTERRUPTS
   # ========================================================================
   interrupts:
-    - skull_bash,if=target.casting.interruptible&interrupts.target.ready
-    - mighty_bash,if=talent.mighty_bash&target.casting.interruptible&!cooldown.skull_bash.ready
-    - typhoon,if=talent.typhoon&target.casting.interruptible&!cooldown.skull_bash.ready
+    - skull_bash,if=target.casting.interruptible&interrupts.target.ready&(config.interrupt_focus|config.interrupt_all)
+    - mighty_bash,if=talent.mighty_bash&target.casting.interruptible&!cooldown.skull_bash.ready&(config.interrupt_focus|config.interrupt_all)
+    - typhoon,if=talent.typhoon&target.casting.interruptible&!cooldown.skull_bash.ready&(config.interrupt_focus|config.interrupt_all)
+    - skull_bash.focus,if=focus.casting.interruptible&interrupts.target.ready&(config.interrupt_focus|config.interrupt_all)
+    - mighty_bash.focus,if=talent.mighty_bash&focus.casting.interruptible&!cooldown.skull_bash.ready&(config.interrupt_focus|config.interrupt_all)
+    - skull_bash.mouseover,if=mouseover.casting.interruptible&interrupts.mouseover.ready&(config.interrupt_mouseover|config.interrupt_all)
 
   # ========================================================================
   # COOLDOWNS (Shared across all profiles)
   # ========================================================================
   cooldowns:
+    # Trinkets
+    - trinket_1,if=trinket_1.ready&trinket_1.usable&(buff.berserk.up|buff.tigers_fury.up),global_delay=100
+    - trinket_2,if=trinket_2.ready&trinket_2.usable&(buff.berserk.up|buff.tigers_fury.up),global_delay=100
+
     # Tiger's Fury on CD - aim for 5 CP or low energy
     - tigers_fury,if=(var.cp_5|energy<50)&!buff.tigers_fury.up
 
@@ -180,10 +207,6 @@ lists:
 
     # Feral Frenzy - sync with Tiger's Fury, low CP
     - feral_frenzy,if=cooldown.tigers_fury.remains<3|buff.tigers_fury.up|combo_points<3
-
-    # Trinkets
-    - trinket_1,if=trinket_1.sync&(buff.berserk.up|buff.tigers_fury.up)
-    - trinket_2,if=trinket_2.sync&(buff.berserk.up|buff.tigers_fury.up)
 
   # ========================================================================
   # WOWHEAD - SINGLE TARGET
