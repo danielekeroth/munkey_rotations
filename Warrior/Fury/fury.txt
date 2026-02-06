@@ -1,0 +1,141 @@
+# ============================================================================
+# ROTATION CREATION MASTER TEMPLATE (Indexed Reference Version)
+# ============================================================================
+# The AI uses QUICK_REFERENCE.yaml as primary guide, and fetches specific
+# sections from reference_guide.yaml using the index when needed.
+# ============================================================================
+
+STEP 1: REFERENCE PREPARATION
+=============================
+
+Read these files in order:
+  1. QUICK_REFERENCE.yaml           # Primary guide (~400 lines)
+  2. reference_guide_index.yaml     # Index for detailed lookups
+
+You do NOT need to read the full reference_guide.yaml upfront.
+Use the index to fetch only relevant sections as needed during implementation.
+
+STOP: Confirm once you've reviewed the quick reference and index.
+
+STEP 2: GUIDE RESEARCH (After Approval)
+=======================================
+
+I want you to implement rotation profiles for Fury Warrior based on:
+
+PROFILES TO IMPLEMENT:
+  1. WoWHead
+     URL: https://www.wowhead.com/guide/classes/warrior/fury/overview-pve-dps
+     
+  2. Method.gg
+     URL: https://www.method.gg/guides/fury-warrior
+    
+  3. Icy Veins
+     URL: https://www.icy-veins.com/wow/fury-warrior-pve-dps-guide
+
+If URLs are not provided, search for:
+  - "[Source] [Class] [Spec] rotation guide [current patch]"
+
+For each guide, extract:
+  - Opener sequence
+  - Single Target priority
+  - AOE priority
+  - Hero talent specific mechanics (if applicable)
+  - Cooldown alignment rules
+  - Resource pooling guidelines
+  - Any special mechanics (empowered spells, procs, etc.)
+
+STOP: After extracting both guides, STOP and summarize your findings:
+  - Key differences between the profiles
+  - Any unclear mechanics that need clarification
+  - Hero talent detection needed (list them)
+
+Wait for my approval before implementing.
+
+STEP 3: IMPLEMENTATION (After Approval)
+=======================================
+
+⚠️  CRITICAL: Build the rotation from SCRATCH using QUICK_REFERENCE.yaml 
+    as primary guide. Fetch specific sections from reference_guide.yaml 
+    using the index ONLY when you need to verify syntax or look up edge cases.
+    DO NOT copy patterns from existing rotation files!
+
+⚠️  BEFORE WRITING ANY SPELL CONDITIONS:
+    Check morph_database/{class}_morphs.yaml for spell transformations!
+    If a spell morphs (e.g., Azure Strike → Azure Sweep), you MUST use:
+      azure_sweep,override=azure_strike,if=buff.azure_sweep.up
+    NOT just: azure_strike,if=buff.azure_sweep.down (this BREAKS the rotation!)
+
+Create file: [Class]/{LLM}_rotation_{CLASS_ID}_{AUTHOR}.yaml
+
+Required structure:
+  - Metadata header (version, spec, name, description, author, date, patch)
+  - movement_allowed (if caster with mobility)
+  - Config: profile dropdown + aoe_threshold + defensives toggle
+  - Variables: hero talent detection, pooling logic
+  - Lists: main, defensives, cooldowns, [profile1]_st, [profile1]_aoe, [profile2]_st, [profile2]_aoe
+  - Actions: entry point
+
+When unsure about syntax, fetch the relevant section from reference_guide.yaml:
+  - Example: ReadFile(path="reference_guide.yaml", line_offset=635, n_lines=225) 
+    gets step_options (lines 635-859)
+
+Before final submission, verify:
+  [ ] movement_allowed at ROOT level
+  [ ] main list auto-executed (not called explicitly)
+  [ ] Using '=' not '==' for equality
+  [ ] Parentheses for & | precedence
+  [ ] Empowered spells use ignore_usable + ignore_cooldown + casting_check
+  [ ] All non-main lists called via call_action_list
+  [ ] Config referenced as config.name, variables as var.name
+
+# ============================================================================
+# QUICK START - MINIMAL INPUT
+# ============================================================================
+#
+# Just fill in the brackets below:
+#
+# ---
+# Create rotation profiles for [CLASS] [SPEC] based on:
+#   1. Wowhead guide
+#   2. Method.gg guide
+# 
+# File: [Class]/kimi_rotation_[ID]_[author].yaml
+# ---
+#
+# The AI will:
+#   - Read QUICK_REFERENCE.yaml (primary)
+#   - Read reference_guide_index.yaml (for lookups)
+#   - Find the guides automatically
+#   - Extract rotation details
+#   - Implement both profiles
+#   - Add hero talent detection if needed
+#   - Fetch reference sections as needed for verification
+#
+# ============================================================================
+
+# ============================================================================
+# INDEX REFERENCE - When to fetch from reference_guide.yaml
+# ============================================================================
+#
+# Use these index entries to fetch specific sections when needed:
+#
+# For empowered spells (Evoker):
+#   - step_options [635, 859]     (ignore_usable, casting_check)
+#   - player_status [955, 1023]   (player.empower_stage)
+#
+# For healing/targeting:
+#   - healing_targeting [1383, 1574]  (cycle=, target=, group)
+#   - cast_target_modifiers [2071, 2107]  (.player, .mouseover)
+#
+# For cooldown/trinket management:
+#   - cooldowns [574, 609]
+#   - equipment [1610, 1693]
+#
+# For AOE:
+#   - enemy_combat_count [1347, 1382]  (active_enemies)
+#
+# For config setup:
+#   - config_options [1903, 1985]
+#   - user_variables [1885, 1902]
+#
+# ============================================================================

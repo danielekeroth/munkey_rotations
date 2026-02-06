@@ -1,0 +1,29 @@
+# Mage Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/mage.txt
+# Generated: 2026-02-06T08:45:28.709057
+
+mage:
+  # Reflection overrides Blink
+  - override_spell: Reflection
+    override_id: 389714
+    base_spell: Blink
+    base_id: 1953
+    trigger: buff.reflection.up
+    usage: "Reflection,override=Blink,if=buff.reflection.up"
+
+  # Reflection overrides Shimmer
+  - override_spell: Reflection
+    override_id: 389714
+    base_spell: Shimmer
+    base_id: 212653
+    trigger: buff.reflection.up
+    usage: "Reflection,override=Shimmer,if=buff.reflection.up"
+
+  # Ice Cold overrides Ice Block
+  - override_spell: Ice Cold
+    override_id: 414659
+    base_spell: Ice Block
+    base_id: 45438
+    trigger: buff.ice_cold.up
+    usage: "Ice Cold,override=Ice Block,if=buff.ice_cold.up"

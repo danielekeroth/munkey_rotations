@@ -1,0 +1,69 @@
+# Shaman Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/shaman.txt
+# Generated: 2026-02-06T08:45:30.893335
+
+shaman:
+  # Ancestral Swiftness overrides Nature's Swiftness
+  - override_spell: Ancestral Swiftness
+    override_id: 448866
+    base_spell: Nature's Swiftness
+    base_id: 378081
+    trigger: buff.ancestral_swiftness.up
+    usage: "Ancestral Swiftness,override=Nature's Swiftness,if=buff.ancestral_swiftness.up"
+
+  # Tempest overrides Lightning Bolt
+  - override_spell: Tempest
+    override_id: 454015
+    base_spell: Lightning Bolt
+    base_id: 188196
+    trigger: buff.tempest.up
+    usage: "Tempest,override=Lightning Bolt,if=buff.tempest.up"
+
+  # Surging Totem overrides Healing Rain
+  - override_spell: Surging Totem
+    override_id: 456359
+    base_spell: Healing Rain
+    base_id: 73920
+    trigger: buff.surging_totem.up
+    usage: "Surging Totem,override=Healing Rain,if=buff.surging_totem.up"
+
+  # Downpour overrides Healing Rain
+  - override_spell: Downpour
+    override_id: 462488
+    base_spell: Healing Rain
+    base_id: 73920
+    trigger: buff.downpour.up
+    usage: "Downpour,override=Healing Rain,if=buff.downpour.up"
+
+  # Downpour overrides Surging Totem
+  - override_spell: Downpour
+    override_id: 462488
+    base_spell: Surging Totem
+    base_id: 444995
+    trigger: buff.downpour.up
+    usage: "Downpour,override=Surging Totem,if=buff.downpour.up"
+
+  # Primordial Storm overrides Sundering
+  - override_spell: Primordial Storm
+    override_id: 1218125
+    base_spell: Sundering
+    base_id: 197214
+    trigger: buff.primordial_storm.up
+    usage: "Primordial Storm,override=Sundering,if=buff.primordial_storm.up"
+
+  # Elemental Blast overrides Lightning Bolt
+  - override_spell: Elemental Blast
+    override_id: 1260667
+    base_spell: Lightning Bolt
+    base_id: 188196
+    trigger: buff.elemental_blast.up
+    usage: "Elemental Blast,override=Lightning Bolt,if=buff.elemental_blast.up"
+
+  # Fire Nova overrides Chain Lightning
+  - override_spell: Fire Nova
+    override_id: 1260667
+    base_spell: Chain Lightning
+    base_id: 188443
+    trigger: buff.fire_nova.up
+    usage: "Fire Nova,override=Chain Lightning,if=buff.fire_nova.up"

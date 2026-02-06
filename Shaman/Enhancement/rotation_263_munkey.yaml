@@ -5,14 +5,15 @@ version: "1.0.0"
 spec: 263  # Enhancement Shaman
 name: "Gemini Enhancement"
 description: "Optimized for Midnight Pre-Patch with Hero Talent support"
-author: "Gemini (Munkey)"
+author: "Munkey"
 date: "2026-02-06"
 patch: "12.0"
+blocked: true
 
 # ----------------------------------------------------------------------------
 # ROOT SETTINGS
 # ----------------------------------------------------------------------------
-movement_allowed: buff.spiritwalker_s_grace.up
+movement_allowed: buff.spiritwalkers_grace.up
 
 # ----------------------------------------------------------------------------
 # CONFIGURATION
@@ -105,6 +106,9 @@ lists:
     # Method
     - call_action_list,name=method_st,if=config.rotation_profile=2&!var.is_aoe
     - call_action_list,name=method_aoe,if=config.rotation_profile=2&var.is_aoe
+
+    - call_action_list,name=icy_veins_st,if=enemies.combat.15y=1
+    - call_action_list,name=icy_veins_aoe,if=enemies.combat.15y>1
 
 # ============================================================================
 # DEFENSIVES

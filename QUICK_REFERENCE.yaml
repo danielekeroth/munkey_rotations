@@ -1,0 +1,492 @@
+# ============================================================================
+# ROTATION QUICK REFERENCE - Common Patterns for All Classes
+# ============================================================================
+# A condensed guide covering the most-used rotation expressions.
+# For full details, see reference_guide.yaml
+#
+# ⚠️ IMPORTANT: When creating new rotations, use THIS GUIDE and the
+#    reference_guide.yaml - DO NOT copy from existing rotation files!
+#    Existing rotations may contain outdated patterns or errors.
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# FILE METADATA (Recommended Header)
+# ----------------------------------------------------------------------------
+# Include these properties at the top of each rotation file:
+#
+# version: "1.0.0"                    # Rotation version
+# spec: 1467                          # Class/Spec ID (1467 = Devastation Evoker)
+# name: "Devastation Evoker"          # Display name
+# description: "Wowhead vs Method.gg profiles with hero talent detection"
+#
+# Optional:
+# author: "Your Name"                 # Author credit
+# date: "2026-02-06"                  # Creation/update date
+# patch: "12.0"                       # WoW patch version
+
+# ----------------------------------------------------------------------------
+# FILE STRUCTURE
+# ----------------------------------------------------------------------------
+# movement_allowed: buff.ice_floes.up        # ROOT LEVEL: cast while moving
+#                                             # (NOT inside variables section!)
+#
+# config:                                     # User settings UI
+#   setting_name:
+#     type: slider/checkbox/dropdown/multi_select
+#     ...
+#
+# variables:                                  # Reusable expressions
+#   var_name: expression
+#
+# lists:                                      # Reusable action lists
+#   main:                                     # DEFAULT entry point (auto-called)
+#     - spell,if=condition
+#   other_list:                               # Must be called explicitly
+#     - spell,if=condition
+#
+# actions:                                    # Alternative main rotation
+#   - spell,if=condition                      # (Use 'lists: main:' OR 'actions:')
+
+# ----------------------------------------------------------------------------
+# COMMON MISTAKES TO AVOID
+# ----------------------------------------------------------------------------
+# ❌ if=buff.spell.up==true          → ✅ if=buff.spell.up
+# ❌ if=cooldown.spell==0            → ✅ if=cooldown.spell.ready
+# ❌ if=health.pct==30               → ✅ if=health.pct=30   (single =)
+# ❌ movement_allowed in variables   → ✅ movement_allowed at ROOT level
+# ❌ calling lists/main explicitly   → ✅ main runs automatically
+# ❌ a & b | c                       → ✅ (a & b) | c   (use parentheses!)
+# ❌ Checking morphed spell directly  → ✅ Use override=base_spell
+#    (e.g., azure_sweep directly)       (e.g., azure_sweep,override=azure_strike)
+
+# ----------------------------------------------------------------------------
+# RESOURCES
+# ----------------------------------------------------------------------------
+# Generic:       RESOURCE, RESOURCE.max, RESOURCE.deficit
+# Specific:      RESOURCE.pct, RESOURCE.regen, RESOURCE.time_to_max
+#
+# Examples:
+#   if=energy>=50
+#   if=combo_points=combo_points.max
+#   if=mana.pct<30
+#   if=rage.deficit<20
+#   if=holy_power>=3
+#   if=essence>=3
+#   if=energy.time_to_max<3
+
+# ----------------------------------------------------------------------------
+# HEALTH
+# ----------------------------------------------------------------------------
+# Player:   health.pct, health.current, health.deficit, health.max
+# Target:   target.health.pct, target.health.current
+# Focus:    focus.health.pct
+#
+# Time to die: target.time_to_die, fight_remains
+# Range:       target.range, range
+#
+# Examples:
+#   if=health.pct<30
+#   if=target.health.pct<20           # Execute phase
+#   if=target.time_to_die>10
+#   if=range<8
+
+# ----------------------------------------------------------------------------
+# BUFFS & DEBUFFS
+# ----------------------------------------------------------------------------
+# Format: buff.SPELL.PROPERTY, debuff.SPELL.PROPERTY
+#
+# Properties:
+#   .up, .down, .react           - Active/inactive check
+#   .remains, .elapsed           - Time (seconds)
+#   .stack                       - Stack count
+#   .refreshable                 - Pandemic window (can refresh)
+#   .duration                    - Base duration
+#
+# Source filtering:
+#   buff.renew.up        - YOUR buff only (default)
+#   buff.renew.up.any    - From any source
+#
+# Examples:
+#   if=buff.power.up
+#   if=buff.haste.remains<5
+#   if=debuff.dot.refreshable
+#   if=buff.stacks.stack>=3
+
+# ----------------------------------------------------------------------------
+# COOLDOWNS
+# ----------------------------------------------------------------------------
+# Format: cooldown.SPELL.PROPERTY
+#
+# Properties:
+#   .ready, .up, .down           - Availability
+#   .remains                     - Time until ready
+#   .charges, .max_charges       - Charge counts
+#   .full_recharge_time          - Time to full charges
+#   .charges_fractional          - Charges + partial progress
+#
+# Examples:
+#   if=cooldown.big_spell.ready
+#   if=cooldown.blink.charges>=1
+#   if=cooldown.burst.remains<5
+
+# ----------------------------------------------------------------------------
+# COMBAT & ENEMIES
+# ----------------------------------------------------------------------------
+# Enemy counts:
+#   active_enemies               - Enemies in combat (context-aware)
+#   enemies.8y, enemies.40y      - Enemies within range
+#   enemies.combat.8y            # Enemies in combat within 8y
+#
+# Target properties:
+#   target.exists, target.alive, target.dead
+#   target.enemy, target.boss, target.attackable
+#   target.casting, target.casting.interruptible, target.casting.remains
+#   target.moving
+#
+# Player combat:
+#   player.combat, player.combat.time
+#   player.boss_fight            # Boss encounter active
+#
+# Examples:
+#   if=active_enemies>=3
+#   if=target.casting.interruptible
+#   if=player.combat.time<10      # Opener phase
+
+# ----------------------------------------------------------------------------
+# PLAYER STATE
+# ----------------------------------------------------------------------------
+# Movement:      player.moving, player.standing, player.moving.time
+# Casting:       player.casting, player.channeling, player.casting.remains
+# Evoker:        player.empower_stage              # 1-4 empower level
+# Burst:         player.burst.active, player.burst.count
+# Role:          player.tank, player.healer, player.dps, player.melee, player.ranged
+# Stats:         player.haste_pct, player.crit_pct, player.mastery_pct
+# Content:       player.inraid, player.inmythicplus, player.inpvp, player.keystonelevel
+# Crowd Control: player.stunned, player.rooted, player.silenced, player.cc
+#
+# Examples:
+#   if=!player.moving
+#   if=player.empower_stage>=2
+#   if=player.burst.active
+#   if=player.stunned
+
+# ----------------------------------------------------------------------------
+# STEP OPTIONS (Inline modifiers)
+# ----------------------------------------------------------------------------
+# range_check=target/mouseover/focus/none     # Override range validation
+# casting_check=SPELL/any/none                # Only during specific cast
+# cast_remains=0.5                            # Only in last X seconds of cast
+# channel_remains=1.0                         # Only in last X seconds of channel
+# interrupt=true                              # Allow interrupting current cast
+# ignore_cooldown=true                        # Skip cooldown check
+# ignore_usable=true                          # Skip usability check
+# ignore_movement=true                        # Allow while moving
+#
+# Examples:
+#   - spell,ignore_movement=true,if=player.moving
+#   - empowered_release,ignore_usable=true,ignore_cooldown=true,casting_check=empowered_spell,if=player.empower_stage>=2
+
+# ----------------------------------------------------------------------------
+# CAST TARGET MODIFIERS
+# ----------------------------------------------------------------------------
+# Syntax: spell.MODIFIER
+#   .player      - Cast on self
+#   .cursor      - Ground target at cursor
+#   .focus       - Cast on focus
+#   .mouseover   - Cast on mouseover
+#
+# Auto-range: Each modifier auto-checks range for that unit
+#
+# Examples:
+#   - heal.player,if=health.pct<50
+#   - blizzard.cursor,if=active_enemies>=3
+#   - polymorph.focus,if=focus.exists
+
+# ----------------------------------------------------------------------------
+# ACTION LISTS
+# ----------------------------------------------------------------------------
+# Define reusable lists, call them in main rotation:
+#   call_action_list,name=list_name        # Run list, continue after
+#   run_action_list,name=list_name         # Run list, restart rotation
+#   call=list_name                         # Alias for call_action_list
+#
+# SPECIAL: The 'main' list is the DEFAULT ENTRY POINT
+#   - It runs automatically without being called
+#   - All other lists must be explicitly called
+#
+# Example:
+#   lists:
+#     main:                                 # Auto-executed (no call needed)
+#       - call_action_list,name=cooldowns
+#       - filler_spell
+#
+#     cooldowns:                            # Must be called explicitly
+#       - big_cd,if=target.boss
+#       - trinket_1,if=trinket_1.sync
+#
+#   # Alternative: Use 'actions:' instead of 'lists: main:'
+#   actions:
+#     - call_action_list,name=cooldowns
+#     - filler_spell
+
+# ----------------------------------------------------------------------------
+# CONFIG (User Settings)
+# ----------------------------------------------------------------------------
+# Types: slider, checkbox, dropdown, multi_select
+#
+# Reference: config.setting_name
+# Multi-select: config.setting_name.has(VALUE)
+#
+# Example:
+#   config:
+#     rotation_mode:
+#       type: dropdown
+#       options:
+#         - label: "ST"
+#           value: 1
+#         - label: "AOE"
+#           value: 2
+#   actions:
+#     - aoe_spell,if=config.rotation_mode=2&active_enemies>=3
+
+# ----------------------------------------------------------------------------
+# VARIABLES
+# ----------------------------------------------------------------------------
+# Define reusable expressions:
+#   variables:
+#     pooling: cooldown.burst.remains<5&energy<80
+#     execute: target.health.pct<20
+#
+# Reference: var.variable_name
+#
+# Example:
+#   - finisher,if=var.execute|combo_points.max
+
+# ----------------------------------------------------------------------------
+# COMMON CONDITION PATTERNS
+# ----------------------------------------------------------------------------
+# Resource pooling:
+#   if=cooldown.big.remains<5&resource.deficit>30
+#
+# Pandemic refresh (DoT maintenance):
+#   if=debuff.dot.remains<debuff.dot.duration*0.3
+#   if=debuff.dot.refreshable
+#
+# Opener checks:
+#   if=player.combat.time<10
+#   if=prev_gcd.1.spell_name
+#
+# Cooldown sync:
+#   if=buff.bloodlust.up|buff.major_buff.up|trinket_1.sync
+#
+# AOE vs ST:
+#   if=active_enemies>=3
+#   if=active_enemies=1
+
+# ----------------------------------------------------------------------------
+# TRINKETS & EQUIPMENT
+# ----------------------------------------------------------------------------
+# Trinkets:  trinket_1.ready, trinket_1.sync, trinket_1.cd
+# Slots:     weapon.ready, helm.ready, belt.ready, etc.
+# Tier:      set_bonus.TIER_NAME_2pc, set_bonus.TIER_NAME_4pc
+# Equipped:  equipped.ITEM_ID
+#
+# Examples:
+#   if=trinket_1.sync
+#   if=trinket_2.ready&buff.bloodlust.up
+
+# ----------------------------------------------------------------------------
+# TALENTS
+# ----------------------------------------------------------------------------
+# Format: talent.TALENT_NAME[.PROPERTY]
+#
+# Properties:
+#   (default) / .enabled  - Selected check
+#   .rank                 - Talent rank (0 if not selected)
+#
+# Examples:
+#   if=talent.special_ability
+#   if=talent.power_talent.rank>=2
+#   if=talent.talent_a&!talent.talent_b
+
+# ----------------------------------------------------------------------------
+# INTERRUPTS & DEFENSIVES
+# ----------------------------------------------------------------------------
+# Interrupts:
+#   interrupts.target.ready
+#   interrupts.target.stun.ready
+#   interrupts.8y.count
+#
+# Defensives:
+#   defensives.ready
+#   defensives.ready.aoe
+#
+# Examples:
+#   - kick,if=interrupts.target.ready
+#   - shield_wall,if=defensives.ready
+
+# ----------------------------------------------------------------------------
+# PREVIOUS CAST TRACKING
+# ----------------------------------------------------------------------------
+# Format: prev_gcd.N.SPELL_NAME (N = 1, 2, 3)
+#
+# Examples:
+#   if=prev_gcd.1.builder_spell
+#   if=prev_gcd.2.finish_spell
+
+# ----------------------------------------------------------------------------
+# SPECIAL ACTIONS
+# ----------------------------------------------------------------------------
+# Trinkets:  trinket_1, trinket_2
+# Consumables: healthstone, combat_potion, augment_rune
+# Targeting: target_enemy, attack_target
+# Control:   return, stop_casting, queue_spell
+#
+# Examples:
+#   - return,if=player.dead
+#   - trinket_1,if=trinket_1.sync
+#   - healthstone,if=health.pct<30
+
+# ----------------------------------------------------------------------------
+# SPELL MORPHS / TRANSFORMATIONS ⚠️ CRITICAL
+# ----------------------------------------------------------------------------
+# When a spell transforms into another (talent morphs, buff transforms, etc.)
+# use the 'override' option to check one spell but press another's keybind.
+#
+# ⚠️  CRITICAL: Always check the morph_database/ for your class before 
+#    implementing! If you don't use 'override' for morphed spells, the 
+#    rotation will BREAK when the spell transforms.
+#
+#    Example: Evoker's Azure Strike becomes Azure Sweep after Eternity Surge.
+#    Without override, the rotation stops working!
+#
+# Database location: morph_database/{class}_morphs.yaml
+# Generate fresh: python build_morph_database.py --class {class}
+#
+# Syntax: spell_to_check,override=spell_with_keybind,if=condition
+#
+# Examples:
+#   - azure_sweep,override=azure_strike,if=buff.azure_sweep.up
+#     # Check if Azure Sweep is usable (transformed), press Azure Strike key
+#
+#   - vampiric_strike,override=heart_strike,if=buff.vampiric_strike.up
+#     # Check Vampiric Strike, press Heart Strike key
+#
+#   - crushing_blow,override=raging_blow,if=buff.crushing_blow.up
+#     # Warrior Fury talent morph
+#
+# Common use cases:
+#   - Spells that transform after using another spell (Azure Strike → Azure Sweep)
+#   - Talent that morphs a base spell (Condemn → Execute)
+#   - Buff transforms (Crushing Blow → Raging Blow)
+
+# ----------------------------------------------------------------------------
+# OPERATORS REFERENCE
+# ----------------------------------------------------------------------------
+# Boolean:   & (AND), | (OR), ! (NOT)
+# Compare:   <, <=, >, >=, =, !=
+# Math:      +, -, *, /
+# Grouping:  () for precedence
+#
+# Complex example:
+#   if=(buff.power.up|buff.haste.remains<3)&cooldown.spell.ready&!player.moving
+
+# ============================================================================
+# ADDITIONAL PATTERNS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# EMPOWERED SPELLS (Evoker/Channeling Pattern)
+# ----------------------------------------------------------------------------
+# Empowered spells need special handling for release at desired stage:
+#   - ignore_usable=true      # Spell shows unusable during channel
+#   - ignore_cooldown=true    # Cooldown shows incorrectly during channel
+#   - casting_check=SPELL     # Only trigger while channeling this spell
+#
+# Examples:
+#   - fire_breath,ignore_usable=true,ignore_cooldown=true,casting_check=fire_breath,if=player.empower_stage>=4
+#   - eternity_surge,ignore_usable=true,ignore_cooldown=true,casting_check=eternity_surge,if=player.empower_stage>=1
+
+# ----------------------------------------------------------------------------
+# OPERATOR PRECEDENCE (Important!)
+# ----------------------------------------------------------------------------
+# & (AND) binds tighter than | (OR)
+# Always use parentheses for clarity with mixed operators
+#
+# Good:  if=(buff.a.up|buff.b.up)&cooldown.ready
+# Bad:   if=buff.a.up|buff.b.up&cooldown.ready   # Parsed as: buff.a.up | (buff.b.up & cooldown.ready)
+
+# ----------------------------------------------------------------------------
+# TALENT DETECTION PATTERNS
+# ----------------------------------------------------------------------------
+# Check if talent is selected:
+#   talent.talent_name               # Returns 1 if selected
+#
+# Hero talent branches (mutually exclusive):
+#   talent.flameshaper               # Check Flameshaper hero talent
+#   talent.scalecommander            # Check Scalecommander hero talent
+#
+# Use in variables for cleaner conditions:
+#   variables:
+#     is_flameshaper: talent.flameshaper
+#     is_scalecommander: talent.scalecommander
+#
+# Then use: if=var.is_flameshaper
+
+# ----------------------------------------------------------------------------
+# CONFIG REFERENCE
+# ----------------------------------------------------------------------------
+# Reference: config.setting_name
+# Alternative: settings.setting_name (legacy alias)
+#
+# Multi-select check:
+#   config.multi.has(VALUE)          # Returns 1 if selected, 0 otherwise
+#   config.multi.has("Label Name")   # Can use label or value
+#
+# Example:
+#   config:
+#     rotation_mode:
+#       type: multi_select
+#       options:
+#         - label: "ST"
+#           value: 1
+#         - label: "AOE"
+#           value: 2
+#   actions:
+#     - aoe_spell,if=config.rotation_mode.has(2)
+
+# ============================================================================
+# SUGGESTED PROMPT TEMPLATE
+# ============================================================================
+# Use this template when requesting new rotations:
+#
+# ---
+# Create a rotation for [CLASS/SPEC] with the following:
+#
+# ⚠️ NOTE: Build the rotation from SCRATCH using this quick reference and
+#    the full reference_guide.yaml. DO NOT copy patterns from existing
+#    rotation files as they may contain errors or outdated patterns!
+#
+# FILE: {LLM}_rotation_{CLASS_ID}_{AUTHOR}.yaml
+# LOCATION: [Class]/ subdirectory
+#
+# METADATA HEADER:
+#   version: "1.0.0"
+#   spec: [CLASS_ID]           # e.g., 1467 for Devastation Evoker
+#   name: "[Display Name]"
+#   description: "[Brief description]"
+#
+# PROFILES (if multiple):
+#   - [Source 1]: [Brief philosophy - e.g., "Optimized for tier sets"]
+#   - [Source 2]: [Brief philosophy - e.g., "Beginner-friendly"]
+#
+# REQUIREMENTS:
+#   - Hero talent detection (if applicable): [list hero talents]
+#   - AOE threshold in config (slider 2-5)
+#   - Defensives toggle in config
+#   - Movement handling (if caster with mobility spell)
+#
+# NOTES:
+#   - [Any specific mechanics, e.g., "Empowered spells need special handling"]
+#   - [Pooling requirements, e.g., "Hold resources 8s before Dragonrage"]
+# ---

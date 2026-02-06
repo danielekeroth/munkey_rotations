@@ -1,0 +1,69 @@
+# Warrior Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/warrior.txt
+# Generated: 2026-02-06T08:45:31.740305
+
+warrior:
+  # Crushing Blow overrides Raging Blow
+  - override_spell: Crushing Blow
+    override_id: 1719
+    base_spell: Raging Blow
+    base_id: 85288
+    trigger: buff.crushing_blow.up
+    usage: "Crushing Blow,override=Raging Blow,if=buff.crushing_blow.up"
+
+  # Bloodbath overrides Bloodthirst
+  - override_spell: Bloodbath
+    override_id: 1719
+    base_spell: Bloodthirst
+    base_id: 23881
+    trigger: buff.bloodbath.up
+    usage: "Bloodbath,override=Bloodthirst,if=buff.bloodbath.up"
+
+  # Condemn overrides Execute
+  - override_spell: Condemn
+    override_id: 317320
+    base_spell: Execute
+    base_id: 163201
+    trigger: buff.condemn.up
+    usage: "Condemn,override=Execute,if=buff.condemn.up"
+
+  # Condemn overrides Execute
+  - override_spell: Condemn
+    override_id: 317320
+    base_spell: Execute
+    base_id: 5308
+    trigger: buff.condemn.up
+    usage: "Condemn,override=Execute,if=buff.condemn.up"
+
+  # Condemn overrides Execute
+  - override_spell: Condemn
+    override_id: 317320
+    base_spell: Execute
+    base_id: 280735
+    trigger: buff.condemn.up
+    usage: "Condemn,override=Execute,if=buff.condemn.up"
+
+  # Condemn overrides Execute
+  - override_spell: Condemn
+    override_id: 317320
+    base_spell: Execute
+    base_id: 281000
+    trigger: buff.condemn.up
+    usage: "Condemn,override=Execute,if=buff.condemn.up"
+
+  # Crushing Blow overrides Raging Blow
+  - override_spell: Crushing Blow
+    override_id: 396752
+    base_spell: Raging Blow
+    base_id: 85288
+    trigger: buff.crushing_blow.up
+    usage: "Crushing Blow,override=Raging Blow,if=buff.crushing_blow.up"
+
+  # Bloodbath overrides Bloodthirst
+  - override_spell: Bloodbath
+    override_id: 461288
+    base_spell: Bloodthirst
+    base_id: 23881
+    trigger: buff.bloodbath.up
+    usage: "Bloodbath,override=Bloodthirst,if=buff.bloodbath.up"

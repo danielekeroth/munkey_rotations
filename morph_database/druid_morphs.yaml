@@ -1,0 +1,53 @@
+# Druid Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/druid.txt
+# Generated: 2026-02-06T08:45:27.679169
+
+druid:
+  # Heart of the Wild overrides Call of the Elder Druid
+  - override_spell: Heart of the Wild
+    override_id: 197491
+    base_spell: Call of the Elder Druid
+    base_id: 319454
+    trigger: buff.heart_of_the_wild.up
+    usage: "Heart of the Wild,override=Call of the Elder Druid,if=buff.heart_of_the_wild.up"
+
+  # Heart of the Wild overrides Call of the Elder Druid
+  - override_spell: Heart of the Wild
+    override_id: 202155
+    base_spell: Call of the Elder Druid
+    base_id: 319454
+    trigger: buff.heart_of_the_wild.up
+    usage: "Heart of the Wild,override=Call of the Elder Druid,if=buff.heart_of_the_wild.up"
+
+  # Ravage overrides Ferocious Bite
+  - override_spell: Ravage
+    override_id: 441585
+    base_spell: Ferocious Bite
+    base_id: 22568
+    trigger: buff.ravage.up
+    usage: "Ravage,override=Ferocious Bite,if=buff.ravage.up"
+
+  # Mass Blooming overrides Efflorescence
+  - override_spell: Mass Blooming
+    override_id: 473909
+    base_spell: Efflorescence
+    base_id: 145205
+    trigger: buff.mass_blooming.up
+    usage: "Mass Blooming,override=Efflorescence,if=buff.mass_blooming.up"
+
+  # Blossom Burst overrides Ancient of Lore
+  - override_spell: Blossom Burst
+    override_id: 473909
+    base_spell: Ancient of Lore
+    base_id: 473909
+    trigger: buff.blossom_burst.up
+    usage: "Blossom Burst,override=Ancient of Lore,if=buff.blossom_burst.up"
+
+  # Lunar Eclipse overrides Solar Eclipse
+  - override_spell: Lunar Eclipse
+    override_id: 1233353
+    base_spell: Solar Eclipse
+    base_id: 1233346
+    trigger: buff.lunar_eclipse.up
+    usage: "Lunar Eclipse,override=Solar Eclipse,if=buff.lunar_eclipse.up"

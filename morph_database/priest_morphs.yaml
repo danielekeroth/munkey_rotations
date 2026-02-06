@@ -1,0 +1,77 @@
+# Priest Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/priest.txt
+# Generated: 2026-02-06T08:45:30.008079
+
+priest:
+  # Voidform overrides Shadowform
+  - override_spell: Voidform
+    override_id: 194249
+    base_spell: Shadowform
+    base_id: 232698
+    trigger: buff.voidform.up
+    usage: "Voidform,override=Shadowform,if=buff.voidform.up"
+
+  # Voidform overrides Shadowform
+  - override_spell: Voidform
+    override_id: 250844
+    base_spell: Shadowform
+    base_id: 232698
+    trigger: buff.voidform.up
+    usage: "Voidform,override=Shadowform,if=buff.voidform.up"
+
+  # Voidform overrides Shadowform
+  - override_spell: Voidform
+    override_id: 284508
+    base_spell: Shadowform
+    base_id: 232698
+    trigger: buff.voidform.up
+    usage: "Voidform,override=Shadowform,if=buff.voidform.up"
+
+  # Ascended Nova overrides Boon of the Ascended
+  - override_spell: Ascended Nova
+    override_id: 325013
+    base_spell: Boon of the Ascended
+    base_id: 325013
+    trigger: buff.ascended_nova.up
+    usage: "Ascended Nova,override=Boon of the Ascended,if=buff.ascended_nova.up"
+
+  # Direct Mask overrides Fae Guardians
+  - override_spell: Direct Mask
+    override_id: 356959
+    base_spell: Fae Guardians
+    base_id: 327661
+    trigger: buff.direct_mask.up
+    usage: "Direct Mask,override=Fae Guardians,if=buff.direct_mask.up"
+
+  # Void Blast overrides Smite
+  - override_spell: Void Blast
+    override_id: 450404
+    base_spell: Smite
+    base_id: 585
+    trigger: buff.void_blast.up
+    usage: "Void Blast,override=Smite,if=buff.void_blast.up"
+
+  # Void Blast overrides Mind Blast
+  - override_spell: Void Blast
+    override_id: 450404
+    base_spell: Mind Blast
+    base_id: 8092
+    trigger: buff.void_blast.up
+    usage: "Void Blast,override=Mind Blast,if=buff.void_blast.up"
+
+  # Shadow Mend overrides Flash Heal
+  - override_spell: Shadow Mend
+    override_id: 1252217
+    base_spell: Flash Heal
+    base_id: 2061
+    trigger: buff.shadow_mend.up
+    usage: "Shadow Mend,override=Flash Heal,if=buff.shadow_mend.up"
+
+  # Void Volley overrides Voidform
+  - override_spell: Void Volley
+    override_id: 1279437
+    base_spell: Voidform
+    base_id: 228260
+    trigger: buff.void_volley.up
+    usage: "Void Volley,override=Voidform,if=buff.void_volley.up"

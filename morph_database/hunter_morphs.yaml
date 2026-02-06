@@ -1,0 +1,157 @@
+# Hunter Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/hunter.txt
+# Generated: 2026-02-06T08:45:28.284017
+
+hunter:
+  # Wake Up overrides Play Dead
+  - override_spell: Wake Up
+    override_id: 209997
+    base_spell: Play Dead
+    base_id: 209997
+    trigger: buff.wake_up.up
+    usage: "Wake Up,override=Play Dead,if=buff.wake_up.up"
+
+  # Pheromone Bomb overrides Wildfire Bomb
+  - override_spell: Pheromone Bomb
+    override_id: 271015
+    base_spell: Wildfire Bomb
+    base_id: 259495
+    trigger: buff.pheromone_bomb.up
+    usage: "Pheromone Bomb,override=Wildfire Bomb,if=buff.pheromone_bomb.up"
+
+  # Pheromone Bomb overrides Volatile Bomb
+  - override_spell: Pheromone Bomb
+    override_id: 271015
+    base_spell: Volatile Bomb
+    base_id: 271045
+    trigger: buff.pheromone_bomb.up
+    usage: "Pheromone Bomb,override=Volatile Bomb,if=buff.pheromone_bomb.up"
+
+  # Pheromone Bomb overrides Shrapnel Bomb
+  - override_spell: Pheromone Bomb
+    override_id: 271015
+    base_spell: Shrapnel Bomb
+    base_id: 270335
+    trigger: buff.pheromone_bomb.up
+    usage: "Pheromone Bomb,override=Shrapnel Bomb,if=buff.pheromone_bomb.up"
+
+  # Shrapnel Bomb overrides Wildfire Bomb
+  - override_spell: Shrapnel Bomb
+    override_id: 271020
+    base_spell: Wildfire Bomb
+    base_id: 259495
+    trigger: buff.shrapnel_bomb.up
+    usage: "Shrapnel Bomb,override=Wildfire Bomb,if=buff.shrapnel_bomb.up"
+
+  # Shrapnel Bomb overrides Volatile Bomb
+  - override_spell: Shrapnel Bomb
+    override_id: 271020
+    base_spell: Volatile Bomb
+    base_id: 271045
+    trigger: buff.shrapnel_bomb.up
+    usage: "Shrapnel Bomb,override=Volatile Bomb,if=buff.shrapnel_bomb.up"
+
+  # Shrapnel Bomb overrides Pheromone Bomb
+  - override_spell: Shrapnel Bomb
+    override_id: 271020
+    base_spell: Pheromone Bomb
+    base_id: 270323
+    trigger: buff.shrapnel_bomb.up
+    usage: "Shrapnel Bomb,override=Pheromone Bomb,if=buff.shrapnel_bomb.up"
+
+  # Volatile Bomb overrides Wildfire Bomb
+  - override_spell: Volatile Bomb
+    override_id: 271050
+    base_spell: Wildfire Bomb
+    base_id: 259495
+    trigger: buff.volatile_bomb.up
+    usage: "Volatile Bomb,override=Wildfire Bomb,if=buff.volatile_bomb.up"
+
+  # Volatile Bomb overrides Pheromone Bomb
+  - override_spell: Volatile Bomb
+    override_id: 271050
+    base_spell: Pheromone Bomb
+    base_id: 270323
+    trigger: buff.volatile_bomb.up
+    usage: "Volatile Bomb,override=Pheromone Bomb,if=buff.volatile_bomb.up"
+
+  # Volatile Bomb overrides Shrapnel Bomb
+  - override_spell: Volatile Bomb
+    override_id: 271050
+    base_spell: Shrapnel Bomb
+    base_id: 270335
+    trigger: buff.volatile_bomb.up
+    usage: "Volatile Bomb,override=Shrapnel Bomb,if=buff.volatile_bomb.up"
+
+  # Spearhead overrides Kill Command
+  - override_spell: Spearhead
+    override_id: 360955
+    base_spell: Kill Command
+    base_id: 259489
+    trigger: buff.spearhead.up
+    usage: "Spearhead,override=Kill Command,if=buff.spearhead.up"
+
+  # Wailing Arrow overrides Trueshot
+  - override_spell: Wailing Arrow
+    override_id: 459808
+    base_spell: Trueshot
+    base_id: 288613
+    trigger: buff.wailing_arrow.up
+    usage: "Wailing Arrow,override=Trueshot,if=buff.wailing_arrow.up"
+
+  # Wailing Arrow overrides Bestial Wrath
+  - override_spell: Wailing Arrow
+    override_id: 459808
+    base_spell: Bestial Wrath
+    base_id: 19574
+    trigger: buff.wailing_arrow.up
+    usage: "Wailing Arrow,override=Bestial Wrath,if=buff.wailing_arrow.up"
+
+  # Black Arrow overrides Kill Shot
+  - override_spell: Black Arrow
+    override_id: 466932
+    base_spell: Kill Shot
+    base_id: 53351
+    trigger: buff.black_arrow.up
+    usage: "Black Arrow,override=Kill Shot,if=buff.black_arrow.up"
+
+  # Master's Call overrides Command Pet
+  - override_spell: Master's Call
+    override_id: 474440
+    base_spell: Command Pet
+    base_id: 272651
+    trigger: buff.master's_call.up
+    usage: "Master's Call,override=Command Pet,if=buff.master's_call.up"
+
+  # Moonlight Chakram overrides Trueshot
+  - override_spell: Moonlight Chakram
+    override_id: 1264946
+    base_spell: Trueshot
+    base_id: 288613
+    trigger: buff.moonlight_chakram.up
+    usage: "Moonlight Chakram,override=Trueshot,if=buff.moonlight_chakram.up"
+
+  # Moonlight Chakram overrides Takedown
+  - override_spell: Moonlight Chakram
+    override_id: 1264946
+    base_spell: Takedown
+    base_id: 1250646
+    trigger: buff.moonlight_chakram.up
+    usage: "Moonlight Chakram,override=Takedown,if=buff.moonlight_chakram.up"
+
+  # Raptor Swipe overrides Raptor Strike
+  - override_spell: Raptor Swipe
+    override_id: 1273155
+    base_spell: Raptor Strike
+    base_id: 186270
+    trigger: buff.raptor_swipe.up
+    usage: "Raptor Swipe,override=Raptor Strike,if=buff.raptor_swipe.up"
+
+  # Raptor Swipe overrides Raptor Strike
+  - override_spell: Raptor Swipe
+    override_id: 1275630
+    base_spell: Raptor Strike
+    base_id: 265189
+    trigger: buff.raptor_swipe.up
+    usage: "Raptor Swipe,override=Raptor Strike,if=buff.raptor_swipe.up"

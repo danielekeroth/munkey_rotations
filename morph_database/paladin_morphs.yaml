@@ -1,0 +1,125 @@
+# Paladin Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/paladin.txt
+# Generated: 2026-02-06T08:45:29.581535
+
+paladin:
+  # Crusader Strike overrides Avenging Crusader
+  - override_spell: Crusader Strike
+    override_id: 216331
+    base_spell: Avenging Crusader
+    base_id: 216331
+    trigger: buff.crusader_strike.up
+    usage: "Crusader Strike,override=Avenging Crusader,if=buff.crusader_strike.up"
+
+  # Blessing of Autumn overrides Blessing of Summer
+  - override_spell: Blessing of Autumn
+    override_id: 328278
+    base_spell: Blessing of Summer
+    base_id: 328620
+    trigger: buff.blessing_of_autumn.up
+    usage: "Blessing of Autumn,override=Blessing of Summer,if=buff.blessing_of_autumn.up"
+
+  # Blessing of Spring overrides Blessing of Summer
+  - override_spell: Blessing of Spring
+    override_id: 329720
+    base_spell: Blessing of Summer
+    base_id: 328620
+    trigger: buff.blessing_of_spring.up
+    usage: "Blessing of Spring,override=Blessing of Summer,if=buff.blessing_of_spring.up"
+
+  # Blessing of Winter overrides Blessing of Summer
+  - override_spell: Blessing of Winter
+    override_id: 329722
+    base_spell: Blessing of Summer
+    base_id: 328620
+    trigger: buff.blessing_of_winter.up
+    usage: "Blessing of Winter,override=Blessing of Summer,if=buff.blessing_of_winter.up"
+
+  # Consecrated Blade overrides Consecration
+  - override_spell: Consecrated Blade
+    override_id: 404834
+    base_spell: Consecration
+    base_id: 26573
+    trigger: buff.consecrated_blade.up
+    usage: "Consecrated Blade,override=Consecration,if=buff.consecrated_blade.up"
+
+  # Templar Slash overrides Templar Strike
+  - override_spell: Templar Slash
+    override_id: 406648
+    base_spell: Templar Strike
+    base_id: 407480
+    trigger: buff.templar_slash.up
+    usage: "Templar Slash,override=Templar Strike,if=buff.templar_slash.up"
+
+  # Sacred Weapon overrides Holy Bulwark
+  - override_spell: Sacred Weapon
+    override_id: 432478
+    base_spell: Holy Bulwark
+    base_id: 432459
+    trigger: buff.sacred_weapon.up
+    usage: "Sacred Weapon,override=Holy Bulwark,if=buff.sacred_weapon.up"
+
+  # Radiant Glory overrides Avenging Wrath
+  - override_spell: Radiant Glory
+    override_id: 458359
+    base_spell: Avenging Wrath
+    base_id: 231895
+    trigger: buff.radiant_glory.up
+    usage: "Radiant Glory,override=Avenging Wrath,if=buff.radiant_glory.up"
+
+  # Radiant Glory overrides Avenging Wrath
+  - override_spell: Radiant Glory
+    override_id: 458359
+    base_spell: Avenging Wrath
+    base_id: 31884
+    trigger: buff.radiant_glory.up
+    usage: "Radiant Glory,override=Avenging Wrath,if=buff.radiant_glory.up"
+
+  # Hammer of Wrath overrides Judgment
+  - override_spell: Hammer of Wrath
+    override_id: 1241410
+    base_spell: Judgment
+    base_id: 275773
+    trigger: buff.hammer_of_wrath.up
+    usage: "Hammer of Wrath,override=Judgment,if=buff.hammer_of_wrath.up"
+
+  # Hammer of Wrath overrides Judgment
+  - override_spell: Hammer of Wrath
+    override_id: 1241410
+    base_spell: Judgment
+    base_id: 20271
+    trigger: buff.hammer_of_wrath.up
+    usage: "Hammer of Wrath,override=Judgment,if=buff.hammer_of_wrath.up"
+
+  # Hammer of Wrath overrides Judgment
+  - override_spell: Hammer of Wrath
+    override_id: 1241410
+    base_spell: Judgment
+    base_id: 275773
+    trigger: buff.hammer_of_wrath.up
+    usage: "Hammer of Wrath,override=Judgment,if=buff.hammer_of_wrath.up"
+
+  # (1279408) overrides (406957)
+  - override_spell: (1279408)
+    override_id: 1241410
+    base_spell: (406957)
+    base_id: 406957
+    trigger: buff.(1279408).up
+    usage: "(1279408),override=(406957),if=buff.(1279408).up"
+
+  # Hammer of Light overrides Divine Toll
+  - override_spell: Hammer of Light
+    override_id: 1246643
+    base_spell: Divine Toll
+    base_id: 375576
+    trigger: buff.hammer_of_light.up
+    usage: "Hammer of Light,override=Divine Toll,if=buff.hammer_of_light.up"
+
+  # Hammer of Wrath overrides Judgment
+  - override_spell: Hammer of Wrath
+    override_id: 1277026
+    base_spell: Judgment
+    base_id: 275779
+    trigger: buff.hammer_of_wrath.up
+    usage: "Hammer of Wrath,override=Judgment,if=buff.hammer_of_wrath.up"

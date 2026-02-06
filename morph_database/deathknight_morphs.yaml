@@ -1,0 +1,125 @@
+# Deathknight Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/deathknight.txt
+# Generated: 2026-02-06T08:45:26.793906
+
+deathknight:
+  # Death's Due overrides Death and Decay
+  - override_spell: Death's Due
+    override_id: 315442
+    base_spell: Death and Decay
+    base_id: 43265
+    trigger: buff.death's_due.up
+    usage: "Death's Due,override=Death and Decay,if=buff.death's_due.up"
+
+  # (331117) overrides (313347)
+  - override_spell: (331117)
+    override_id: 331119
+    base_spell: (313347)
+    base_id: 313347
+    trigger: buff.(331117).up
+    usage: "(331117),override=(313347),if=buff.(331117).up"
+
+  # Death's Due overrides Death and Decay
+  - override_spell: Death's Due
+    override_id: 331119
+    base_spell: Death and Decay
+    base_id: 43265
+    trigger: buff.death's_due.up
+    usage: "Death's Due,override=Death and Decay,if=buff.death's_due.up"
+
+  # Vampiric Strike overrides Clawing Shadows
+  - override_spell: Vampiric Strike
+    override_id: 434674
+    base_spell: Clawing Shadows
+    base_id: 207311
+    trigger: buff.vampiric_strike.up
+    usage: "Vampiric Strike,override=Clawing Shadows,if=buff.vampiric_strike.up"
+
+  # Death Charge overrides Death's Advance
+  - override_spell: Death Charge
+    override_id: 444010
+    base_spell: Death's Advance
+    base_id: 48265
+    trigger: buff.death_charge.up
+    usage: "Death Charge,override=Death's Advance,if=buff.death_charge.up"
+
+  # (445163) overrides (48778)
+  - override_spell: (445163)
+    override_id: 455044
+    base_spell: (48778)
+    base_id: 48778
+    trigger: buff.(445163).up
+    usage: "(445163),override=(48778),if=buff.(445163).up"
+
+  # Festering Scythe overrides Festering Strike
+  - override_spell: Festering Scythe
+    override_id: 458123
+    base_spell: Festering Strike
+    base_id: 85948
+    trigger: buff.festering_scythe.up
+    usage: "Festering Scythe,override=Festering Strike,if=buff.festering_scythe.up"
+
+  # (1221634) overrides (1221620)
+  - override_spell: (1221634)
+    override_id: 1221695
+    base_spell: (1221620)
+    base_id: 1221620
+    trigger: buff.(1221634).up
+    usage: "(1221634),override=(1221620),if=buff.(1221634).up"
+
+  # (1221647) overrides (1221620)
+  - override_spell: (1221647)
+    override_id: 1221698
+    base_spell: (1221620)
+    base_id: 1221620
+    trigger: buff.(1221647).up
+    usage: "(1221647),override=(1221620),if=buff.(1221647).up"
+
+  # (1221647) overrides (1221620)
+  - override_spell: (1221647)
+    override_id: 1222390
+    base_spell: (1221620)
+    base_id: 1221620
+    trigger: buff.(1221647).up
+    usage: "(1221647),override=(1221620),if=buff.(1221647).up"
+
+  # Frostbane overrides Frost Strike
+  - override_spell: Frostbane
+    override_id: 1228440
+    base_spell: Frost Strike
+    base_id: 49143
+    trigger: buff.frostbane.up
+    usage: "Frostbane,override=Frost Strike,if=buff.frostbane.up"
+
+  # Frostbane overrides Frost Strike
+  - override_spell: Frostbane
+    override_id: 1229310
+    base_spell: Frost Strike
+    base_id: 49143
+    trigger: buff.frostbane.up
+    usage: "Frostbane,override=Frost Strike,if=buff.frostbane.up"
+
+  # Desecrate overrides Death and Decay
+  - override_spell: Desecrate
+    override_id: 1234689
+    base_spell: Death and Decay
+    base_id: 43265
+    trigger: buff.desecrate.up
+    usage: "Desecrate,override=Death and Decay,if=buff.desecrate.up"
+
+  # Pestilence overrides Outbreak
+  - override_spell: Pestilence
+    override_id: 1271974
+    base_spell: Outbreak
+    base_id: 77575
+    trigger: buff.pestilence.up
+    usage: "Pestilence,override=Outbreak,if=buff.pestilence.up"
+
+  # Pestilence overrides Outbreak
+  - override_spell: Pestilence
+    override_id: 1271975
+    base_spell: Outbreak
+    base_id: 77575
+    trigger: buff.pestilence.up
+    usage: "Pestilence,override=Outbreak,if=buff.pestilence.up"

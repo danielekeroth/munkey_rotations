@@ -1,0 +1,133 @@
+# Demonhunter Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/demonhunter.txt
+# Generated: 2026-02-06T08:45:27.230533
+
+demonhunter:
+  # Reaver's Glaive overrides Throw Glaive
+  - override_spell: Reaver's Glaive
+    override_id: 444686
+    base_spell: Throw Glaive
+    base_id: 185123
+    trigger: buff.reaver's_glaive.up
+    usage: "Reaver's Glaive,override=Throw Glaive,if=buff.reaver's_glaive.up"
+
+  # Reaver's Glaive overrides Throw Glaive
+  - override_spell: Reaver's Glaive
+    override_id: 444764
+    base_spell: Throw Glaive
+    base_id: 204157
+    trigger: buff.reaver's_glaive.up
+    usage: "Reaver's Glaive,override=Throw Glaive,if=buff.reaver's_glaive.up"
+
+  # Pierce the Veil overrides Voidblade
+  - override_spell: Pierce the Veil
+    override_id: 452435
+    base_spell: Voidblade
+    base_id: 1245412
+    trigger: buff.pierce_the_veil.up
+    usage: "Pierce the Veil,override=Voidblade,if=buff.pierce_the_veil.up"
+
+  # Sigil of Doom overrides Sigil of Flame
+  - override_spell: Sigil of Doom
+    override_id: 452489
+    base_spell: Sigil of Flame
+    base_id: 204596
+    trigger: buff.sigil_of_doom.up
+    usage: "Sigil of Doom,override=Sigil of Flame,if=buff.sigil_of_doom.up"
+
+  # Abyssal Gaze overrides Eye Beam
+  - override_spell: Abyssal Gaze
+    override_id: 452489
+    base_spell: Eye Beam
+    base_id: 198013
+    trigger: buff.abyssal_gaze.up
+    usage: "Abyssal Gaze,override=Eye Beam,if=buff.abyssal_gaze.up"
+
+  # Consuming Fire overrides Immolation Aura
+  - override_spell: Consuming Fire
+    override_id: 452489
+    base_spell: Immolation Aura
+    base_id: 427917
+    trigger: buff.consuming_fire.up
+    usage: "Consuming Fire,override=Immolation Aura,if=buff.consuming_fire.up"
+
+  # (469991) overrides (389810)
+  - override_spell: (469991)
+    override_id: 452489
+    base_spell: (389810)
+    base_id: 389810
+    trigger: buff.(469991).up
+    usage: "(469991),override=(389810),if=buff.(469991).up"
+
+  # Devour overrides Consume
+  - override_spell: Devour
+    override_id: 1217607
+    base_spell: Consume
+    base_id: 473662
+    trigger: buff.devour.up
+    usage: "Devour,override=Consume,if=buff.devour.up"
+
+  # Cull overrides Reap
+  - override_spell: Cull
+    override_id: 1217607
+    base_spell: Reap
+    base_id: 1226019
+    trigger: buff.cull.up
+    usage: "Cull,override=Reap,if=buff.cull.up"
+
+  # Collapsing Star overrides Void Metamorphosis
+  - override_spell: Collapsing Star
+    override_id: 1221171
+    base_spell: Void Metamorphosis
+    base_id: 1217605
+    trigger: buff.collapsing_star.up
+    usage: "Collapsing Star,override=Void Metamorphosis,if=buff.collapsing_star.up"
+
+  # Eradicate overrides Reap
+  - override_spell: Eradicate
+    override_id: 1239524
+    base_spell: Reap
+    base_id: 1226019
+    trigger: buff.eradicate.up
+    usage: "Eradicate,override=Reap,if=buff.eradicate.up"
+
+  # Eradicate overrides Cull
+  - override_spell: Eradicate
+    override_id: 1239524
+    base_spell: Cull
+    base_id: 1245453
+    trigger: buff.eradicate.up
+    usage: "Eradicate,override=Cull,if=buff.eradicate.up"
+
+  # Hungering Slash overrides Voidblade
+  - override_spell: Hungering Slash
+    override_id: 1239525
+    base_spell: Voidblade
+    base_id: 1245412
+    trigger: buff.hungering_slash.up
+    usage: "Hungering Slash,override=Voidblade,if=buff.hungering_slash.up"
+
+  # Predator's Wake overrides The Hunt
+  - override_spell: Predator's Wake
+    override_id: 1245496
+    base_spell: The Hunt
+    base_id: 1246167
+    trigger: buff.predator's_wake.up
+    usage: "Predator's Wake,override=The Hunt,if=buff.predator's_wake.up"
+
+  # Pierce the Veil overrides Voidblade
+  - override_spell: Pierce the Veil
+    override_id: 1245496
+    base_spell: Voidblade
+    base_id: 1245412
+    trigger: buff.pierce_the_veil.up
+    usage: "Pierce the Veil,override=Voidblade,if=buff.pierce_the_veil.up"
+
+  # Reaper's Toll overrides Pierce the Veil
+  - override_spell: Reaper's Toll
+    override_id: 1245523
+    base_spell: Pierce the Veil
+    base_id: 1245483
+    trigger: buff.reaper's_toll.up
+    usage: "Reaper's Toll,override=Pierce the Veil,if=buff.reaper's_toll.up"

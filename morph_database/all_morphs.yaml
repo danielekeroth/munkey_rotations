@@ -1,0 +1,475 @@
+# Combined Spell Morph Database
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump
+# Generated: 2026-02-06T08:45:31.741442
+# Classes: deathknight, demonhunter, druid, evoker, hunter, mage, monk, paladin, priest, rogue, shaman, warlock, warrior
+# Total morphs: 111
+
+deathknight:
+  - override: Death's Due
+    base: Death and Decay
+    trigger: buff.death's_due.up
+    usage: Death's Due,override=Death and Decay,if=buff.death's_due.up
+  - override: (331117)
+    base: (313347)
+    trigger: buff.(331117).up
+    usage: (331117),override=(313347),if=buff.(331117).up
+  - override: Death's Due
+    base: Death and Decay
+    trigger: buff.death's_due.up
+    usage: Death's Due,override=Death and Decay,if=buff.death's_due.up
+  - override: Vampiric Strike
+    base: Clawing Shadows
+    trigger: buff.vampiric_strike.up
+    usage: Vampiric Strike,override=Clawing Shadows,if=buff.vampiric_strike.up
+  - override: Death Charge
+    base: Death's Advance
+    trigger: buff.death_charge.up
+    usage: Death Charge,override=Death's Advance,if=buff.death_charge.up
+  - override: (445163)
+    base: (48778)
+    trigger: buff.(445163).up
+    usage: (445163),override=(48778),if=buff.(445163).up
+  - override: Festering Scythe
+    base: Festering Strike
+    trigger: buff.festering_scythe.up
+    usage: Festering Scythe,override=Festering Strike,if=buff.festering_scythe.up
+  - override: (1221634)
+    base: (1221620)
+    trigger: buff.(1221634).up
+    usage: (1221634),override=(1221620),if=buff.(1221634).up
+  - override: (1221647)
+    base: (1221620)
+    trigger: buff.(1221647).up
+    usage: (1221647),override=(1221620),if=buff.(1221647).up
+  - override: (1221647)
+    base: (1221620)
+    trigger: buff.(1221647).up
+    usage: (1221647),override=(1221620),if=buff.(1221647).up
+  - override: Frostbane
+    base: Frost Strike
+    trigger: buff.frostbane.up
+    usage: Frostbane,override=Frost Strike,if=buff.frostbane.up
+  - override: Frostbane
+    base: Frost Strike
+    trigger: buff.frostbane.up
+    usage: Frostbane,override=Frost Strike,if=buff.frostbane.up
+  - override: Desecrate
+    base: Death and Decay
+    trigger: buff.desecrate.up
+    usage: Desecrate,override=Death and Decay,if=buff.desecrate.up
+  - override: Pestilence
+    base: Outbreak
+    trigger: buff.pestilence.up
+    usage: Pestilence,override=Outbreak,if=buff.pestilence.up
+  - override: Pestilence
+    base: Outbreak
+    trigger: buff.pestilence.up
+    usage: Pestilence,override=Outbreak,if=buff.pestilence.up
+
+demonhunter:
+  - override: Reaver's Glaive
+    base: Throw Glaive
+    trigger: buff.reaver's_glaive.up
+    usage: Reaver's Glaive,override=Throw Glaive,if=buff.reaver's_glaive.up
+  - override: Reaver's Glaive
+    base: Throw Glaive
+    trigger: buff.reaver's_glaive.up
+    usage: Reaver's Glaive,override=Throw Glaive,if=buff.reaver's_glaive.up
+  - override: Pierce the Veil
+    base: Voidblade
+    trigger: buff.pierce_the_veil.up
+    usage: Pierce the Veil,override=Voidblade,if=buff.pierce_the_veil.up
+  - override: Sigil of Doom
+    base: Sigil of Flame
+    trigger: buff.sigil_of_doom.up
+    usage: Sigil of Doom,override=Sigil of Flame,if=buff.sigil_of_doom.up
+  - override: Abyssal Gaze
+    base: Eye Beam
+    trigger: buff.abyssal_gaze.up
+    usage: Abyssal Gaze,override=Eye Beam,if=buff.abyssal_gaze.up
+  - override: Consuming Fire
+    base: Immolation Aura
+    trigger: buff.consuming_fire.up
+    usage: Consuming Fire,override=Immolation Aura,if=buff.consuming_fire.up
+  - override: (469991)
+    base: (389810)
+    trigger: buff.(469991).up
+    usage: (469991),override=(389810),if=buff.(469991).up
+  - override: Devour
+    base: Consume
+    trigger: buff.devour.up
+    usage: Devour,override=Consume,if=buff.devour.up
+  - override: Cull
+    base: Reap
+    trigger: buff.cull.up
+    usage: Cull,override=Reap,if=buff.cull.up
+  - override: Collapsing Star
+    base: Void Metamorphosis
+    trigger: buff.collapsing_star.up
+    usage: Collapsing Star,override=Void Metamorphosis,if=buff.collapsing_star.up
+  - override: Eradicate
+    base: Reap
+    trigger: buff.eradicate.up
+    usage: Eradicate,override=Reap,if=buff.eradicate.up
+  - override: Eradicate
+    base: Cull
+    trigger: buff.eradicate.up
+    usage: Eradicate,override=Cull,if=buff.eradicate.up
+  - override: Hungering Slash
+    base: Voidblade
+    trigger: buff.hungering_slash.up
+    usage: Hungering Slash,override=Voidblade,if=buff.hungering_slash.up
+  - override: Predator's Wake
+    base: The Hunt
+    trigger: buff.predator's_wake.up
+    usage: Predator's Wake,override=The Hunt,if=buff.predator's_wake.up
+  - override: Pierce the Veil
+    base: Voidblade
+    trigger: buff.pierce_the_veil.up
+    usage: Pierce the Veil,override=Voidblade,if=buff.pierce_the_veil.up
+  - override: Reaper's Toll
+    base: Pierce the Veil
+    trigger: buff.reaper's_toll.up
+    usage: Reaper's Toll,override=Pierce the Veil,if=buff.reaper's_toll.up
+
+druid:
+  - override: Heart of the Wild
+    base: Call of the Elder Druid
+    trigger: buff.heart_of_the_wild.up
+    usage: Heart of the Wild,override=Call of the Elder Druid,if=buff.heart_of_the_wild.up
+  - override: Heart of the Wild
+    base: Call of the Elder Druid
+    trigger: buff.heart_of_the_wild.up
+    usage: Heart of the Wild,override=Call of the Elder Druid,if=buff.heart_of_the_wild.up
+  - override: Ravage
+    base: Ferocious Bite
+    trigger: buff.ravage.up
+    usage: Ravage,override=Ferocious Bite,if=buff.ravage.up
+  - override: Mass Blooming
+    base: Efflorescence
+    trigger: buff.mass_blooming.up
+    usage: Mass Blooming,override=Efflorescence,if=buff.mass_blooming.up
+  - override: Blossom Burst
+    base: Ancient of Lore
+    trigger: buff.blossom_burst.up
+    usage: Blossom Burst,override=Ancient of Lore,if=buff.blossom_burst.up
+  - override: Lunar Eclipse
+    base: Solar Eclipse
+    trigger: buff.lunar_eclipse.up
+    usage: Lunar Eclipse,override=Solar Eclipse,if=buff.lunar_eclipse.up
+
+evoker:
+  - override: Azure Sweep
+    base: Azure Strike
+    trigger: buff.azure_sweep.up
+    usage: Azure Sweep,override=Azure Strike,if=buff.azure_sweep.up
+
+hunter:
+  - override: Wake Up
+    base: Play Dead
+    trigger: buff.wake_up.up
+    usage: Wake Up,override=Play Dead,if=buff.wake_up.up
+  - override: Pheromone Bomb
+    base: Wildfire Bomb
+    trigger: buff.pheromone_bomb.up
+    usage: Pheromone Bomb,override=Wildfire Bomb,if=buff.pheromone_bomb.up
+  - override: Pheromone Bomb
+    base: Volatile Bomb
+    trigger: buff.pheromone_bomb.up
+    usage: Pheromone Bomb,override=Volatile Bomb,if=buff.pheromone_bomb.up
+  - override: Pheromone Bomb
+    base: Shrapnel Bomb
+    trigger: buff.pheromone_bomb.up
+    usage: Pheromone Bomb,override=Shrapnel Bomb,if=buff.pheromone_bomb.up
+  - override: Shrapnel Bomb
+    base: Wildfire Bomb
+    trigger: buff.shrapnel_bomb.up
+    usage: Shrapnel Bomb,override=Wildfire Bomb,if=buff.shrapnel_bomb.up
+  - override: Shrapnel Bomb
+    base: Volatile Bomb
+    trigger: buff.shrapnel_bomb.up
+    usage: Shrapnel Bomb,override=Volatile Bomb,if=buff.shrapnel_bomb.up
+  - override: Shrapnel Bomb
+    base: Pheromone Bomb
+    trigger: buff.shrapnel_bomb.up
+    usage: Shrapnel Bomb,override=Pheromone Bomb,if=buff.shrapnel_bomb.up
+  - override: Volatile Bomb
+    base: Wildfire Bomb
+    trigger: buff.volatile_bomb.up
+    usage: Volatile Bomb,override=Wildfire Bomb,if=buff.volatile_bomb.up
+  - override: Volatile Bomb
+    base: Pheromone Bomb
+    trigger: buff.volatile_bomb.up
+    usage: Volatile Bomb,override=Pheromone Bomb,if=buff.volatile_bomb.up
+  - override: Volatile Bomb
+    base: Shrapnel Bomb
+    trigger: buff.volatile_bomb.up
+    usage: Volatile Bomb,override=Shrapnel Bomb,if=buff.volatile_bomb.up
+  - override: Spearhead
+    base: Kill Command
+    trigger: buff.spearhead.up
+    usage: Spearhead,override=Kill Command,if=buff.spearhead.up
+  - override: Wailing Arrow
+    base: Trueshot
+    trigger: buff.wailing_arrow.up
+    usage: Wailing Arrow,override=Trueshot,if=buff.wailing_arrow.up
+  - override: Wailing Arrow
+    base: Bestial Wrath
+    trigger: buff.wailing_arrow.up
+    usage: Wailing Arrow,override=Bestial Wrath,if=buff.wailing_arrow.up
+  - override: Black Arrow
+    base: Kill Shot
+    trigger: buff.black_arrow.up
+    usage: Black Arrow,override=Kill Shot,if=buff.black_arrow.up
+  - override: Master's Call
+    base: Command Pet
+    trigger: buff.master's_call.up
+    usage: Master's Call,override=Command Pet,if=buff.master's_call.up
+  - override: Moonlight Chakram
+    base: Trueshot
+    trigger: buff.moonlight_chakram.up
+    usage: Moonlight Chakram,override=Trueshot,if=buff.moonlight_chakram.up
+  - override: Moonlight Chakram
+    base: Takedown
+    trigger: buff.moonlight_chakram.up
+    usage: Moonlight Chakram,override=Takedown,if=buff.moonlight_chakram.up
+  - override: Raptor Swipe
+    base: Raptor Strike
+    trigger: buff.raptor_swipe.up
+    usage: Raptor Swipe,override=Raptor Strike,if=buff.raptor_swipe.up
+  - override: Raptor Swipe
+    base: Raptor Strike
+    trigger: buff.raptor_swipe.up
+    usage: Raptor Swipe,override=Raptor Strike,if=buff.raptor_swipe.up
+
+mage:
+  - override: Reflection
+    base: Blink
+    trigger: buff.reflection.up
+    usage: Reflection,override=Blink,if=buff.reflection.up
+  - override: Reflection
+    base: Shimmer
+    trigger: buff.reflection.up
+    usage: Reflection,override=Shimmer,if=buff.reflection.up
+  - override: Ice Cold
+    base: Ice Block
+    trigger: buff.ice_cold.up
+    usage: Ice Cold,override=Ice Block,if=buff.ice_cold.up
+
+monk:
+  - override: Unity Within
+    base: Celestial Conduit
+    trigger: buff.unity_within.up
+    usage: Unity Within,override=Celestial Conduit,if=buff.unity_within.up
+  - override: Mighty Stomp
+    base: Invoke Niuzao, the Black Ox
+    trigger: buff.mighty_stomp.up
+    usage: Mighty Stomp,override=Invoke Niuzao, the Black Ox,if=buff.mighty_stomp.up
+
+paladin:
+  - override: Crusader Strike
+    base: Avenging Crusader
+    trigger: buff.crusader_strike.up
+    usage: Crusader Strike,override=Avenging Crusader,if=buff.crusader_strike.up
+  - override: Blessing of Autumn
+    base: Blessing of Summer
+    trigger: buff.blessing_of_autumn.up
+    usage: Blessing of Autumn,override=Blessing of Summer,if=buff.blessing_of_autumn.up
+  - override: Blessing of Spring
+    base: Blessing of Summer
+    trigger: buff.blessing_of_spring.up
+    usage: Blessing of Spring,override=Blessing of Summer,if=buff.blessing_of_spring.up
+  - override: Blessing of Winter
+    base: Blessing of Summer
+    trigger: buff.blessing_of_winter.up
+    usage: Blessing of Winter,override=Blessing of Summer,if=buff.blessing_of_winter.up
+  - override: Consecrated Blade
+    base: Consecration
+    trigger: buff.consecrated_blade.up
+    usage: Consecrated Blade,override=Consecration,if=buff.consecrated_blade.up
+  - override: Templar Slash
+    base: Templar Strike
+    trigger: buff.templar_slash.up
+    usage: Templar Slash,override=Templar Strike,if=buff.templar_slash.up
+  - override: Sacred Weapon
+    base: Holy Bulwark
+    trigger: buff.sacred_weapon.up
+    usage: Sacred Weapon,override=Holy Bulwark,if=buff.sacred_weapon.up
+  - override: Radiant Glory
+    base: Avenging Wrath
+    trigger: buff.radiant_glory.up
+    usage: Radiant Glory,override=Avenging Wrath,if=buff.radiant_glory.up
+  - override: Radiant Glory
+    base: Avenging Wrath
+    trigger: buff.radiant_glory.up
+    usage: Radiant Glory,override=Avenging Wrath,if=buff.radiant_glory.up
+  - override: Hammer of Wrath
+    base: Judgment
+    trigger: buff.hammer_of_wrath.up
+    usage: Hammer of Wrath,override=Judgment,if=buff.hammer_of_wrath.up
+  - override: Hammer of Wrath
+    base: Judgment
+    trigger: buff.hammer_of_wrath.up
+    usage: Hammer of Wrath,override=Judgment,if=buff.hammer_of_wrath.up
+  - override: Hammer of Wrath
+    base: Judgment
+    trigger: buff.hammer_of_wrath.up
+    usage: Hammer of Wrath,override=Judgment,if=buff.hammer_of_wrath.up
+  - override: (1279408)
+    base: (406957)
+    trigger: buff.(1279408).up
+    usage: (1279408),override=(406957),if=buff.(1279408).up
+  - override: Hammer of Light
+    base: Divine Toll
+    trigger: buff.hammer_of_light.up
+    usage: Hammer of Light,override=Divine Toll,if=buff.hammer_of_light.up
+  - override: Hammer of Wrath
+    base: Judgment
+    trigger: buff.hammer_of_wrath.up
+    usage: Hammer of Wrath,override=Judgment,if=buff.hammer_of_wrath.up
+
+priest:
+  - override: Voidform
+    base: Shadowform
+    trigger: buff.voidform.up
+    usage: Voidform,override=Shadowform,if=buff.voidform.up
+  - override: Voidform
+    base: Shadowform
+    trigger: buff.voidform.up
+    usage: Voidform,override=Shadowform,if=buff.voidform.up
+  - override: Voidform
+    base: Shadowform
+    trigger: buff.voidform.up
+    usage: Voidform,override=Shadowform,if=buff.voidform.up
+  - override: Ascended Nova
+    base: Boon of the Ascended
+    trigger: buff.ascended_nova.up
+    usage: Ascended Nova,override=Boon of the Ascended,if=buff.ascended_nova.up
+  - override: Direct Mask
+    base: Fae Guardians
+    trigger: buff.direct_mask.up
+    usage: Direct Mask,override=Fae Guardians,if=buff.direct_mask.up
+  - override: Void Blast
+    base: Smite
+    trigger: buff.void_blast.up
+    usage: Void Blast,override=Smite,if=buff.void_blast.up
+  - override: Void Blast
+    base: Mind Blast
+    trigger: buff.void_blast.up
+    usage: Void Blast,override=Mind Blast,if=buff.void_blast.up
+  - override: Shadow Mend
+    base: Flash Heal
+    trigger: buff.shadow_mend.up
+    usage: Shadow Mend,override=Flash Heal,if=buff.shadow_mend.up
+  - override: Void Volley
+    base: Voidform
+    trigger: buff.void_volley.up
+    usage: Void Volley,override=Voidform,if=buff.void_volley.up
+
+rogue:
+  - override: Coup de Grace
+    base: Dispatch
+    trigger: buff.coup_de_grace.up
+    usage: Coup de Grace,override=Dispatch,if=buff.coup_de_grace.up
+  - override: Coup de Grace
+    base: Eviscerate
+    trigger: buff.coup_de_grace.up
+    usage: Coup de Grace,override=Eviscerate,if=buff.coup_de_grace.up
+
+shaman:
+  - override: Ancestral Swiftness
+    base: Nature's Swiftness
+    trigger: buff.ancestral_swiftness.up
+    usage: Ancestral Swiftness,override=Nature's Swiftness,if=buff.ancestral_swiftness.up
+  - override: Tempest
+    base: Lightning Bolt
+    trigger: buff.tempest.up
+    usage: Tempest,override=Lightning Bolt,if=buff.tempest.up
+  - override: Surging Totem
+    base: Healing Rain
+    trigger: buff.surging_totem.up
+    usage: Surging Totem,override=Healing Rain,if=buff.surging_totem.up
+  - override: Downpour
+    base: Healing Rain
+    trigger: buff.downpour.up
+    usage: Downpour,override=Healing Rain,if=buff.downpour.up
+  - override: Downpour
+    base: Surging Totem
+    trigger: buff.downpour.up
+    usage: Downpour,override=Surging Totem,if=buff.downpour.up
+  - override: Primordial Storm
+    base: Sundering
+    trigger: buff.primordial_storm.up
+    usage: Primordial Storm,override=Sundering,if=buff.primordial_storm.up
+  - override: Elemental Blast
+    base: Lightning Bolt
+    trigger: buff.elemental_blast.up
+    usage: Elemental Blast,override=Lightning Bolt,if=buff.elemental_blast.up
+  - override: Fire Nova
+    base: Chain Lightning
+    trigger: buff.fire_nova.up
+    usage: Fire Nova,override=Chain Lightning,if=buff.fire_nova.up
+
+warlock:
+  - override: Drain Soul
+    base: Shadow Bolt
+    trigger: buff.drain_soul.up
+    usage: Drain Soul,override=Shadow Bolt,if=buff.drain_soul.up
+  - override: Infernal Bolt
+    base: Shadow Bolt
+    trigger: buff.infernal_bolt.up
+    usage: Infernal Bolt,override=Shadow Bolt,if=buff.infernal_bolt.up
+  - override: Infernal Bolt
+    base: Incinerate
+    trigger: buff.infernal_bolt.up
+    usage: Infernal Bolt,override=Incinerate,if=buff.infernal_bolt.up
+  - override: Wither
+    base: Immolate
+    trigger: buff.wither.up
+    usage: Wither,override=Immolate,if=buff.wither.up
+  - override: Wither
+    base: Corruption
+    trigger: buff.wither.up
+    usage: Wither,override=Corruption,if=buff.wither.up
+  - override: Malefic Grasp
+    base: Shadow Bolt
+    trigger: buff.malefic_grasp.up
+    usage: Malefic Grasp,override=Shadow Bolt,if=buff.malefic_grasp.up
+  - override: Malefic Grasp
+    base: Drain Soul
+    trigger: buff.malefic_grasp.up
+    usage: Malefic Grasp,override=Drain Soul,if=buff.malefic_grasp.up
+
+warrior:
+  - override: Crushing Blow
+    base: Raging Blow
+    trigger: buff.crushing_blow.up
+    usage: Crushing Blow,override=Raging Blow,if=buff.crushing_blow.up
+  - override: Bloodbath
+    base: Bloodthirst
+    trigger: buff.bloodbath.up
+    usage: Bloodbath,override=Bloodthirst,if=buff.bloodbath.up
+  - override: Condemn
+    base: Execute
+    trigger: buff.condemn.up
+    usage: Condemn,override=Execute,if=buff.condemn.up
+  - override: Condemn
+    base: Execute
+    trigger: buff.condemn.up
+    usage: Condemn,override=Execute,if=buff.condemn.up
+  - override: Condemn
+    base: Execute
+    trigger: buff.condemn.up
+    usage: Condemn,override=Execute,if=buff.condemn.up
+  - override: Condemn
+    base: Execute
+    trigger: buff.condemn.up
+    usage: Condemn,override=Execute,if=buff.condemn.up
+  - override: Crushing Blow
+    base: Raging Blow
+    trigger: buff.crushing_blow.up
+    usage: Crushing Blow,override=Raging Blow,if=buff.crushing_blow.up
+  - override: Bloodbath
+    base: Bloodthirst
+    trigger: buff.bloodbath.up
+    usage: Bloodbath,override=Bloodthirst,if=buff.bloodbath.up

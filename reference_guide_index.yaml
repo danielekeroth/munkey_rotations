@@ -1,0 +1,260 @@
+# ============================================================================
+# REFERENCE GUIDE INDEX
+# ============================================================================
+# Line number index for reference_guide.yaml
+# Use this to fetch only relevant sections when looking up specific topics
+# 
+# Format:
+#   topic:
+#     lines: [start, end]
+#     description: Brief description of content
+#
+# To fetch a section: ReadFile(path="reference_guide.yaml", line_offset=start, n_lines=end-start+1)
+#
+# ⚠️  CRITICAL: Also check morph_database/{class}_morphs.yaml for spell transforms!
+#    Spells that morph MUST use: spell,override=base_spell,if=buff.spell.up
+#    Example: azure_sweep,override=azure_strike,if=buff.azure_sweep.up
+# ============================================================================
+
+index:
+  file_header:
+    lines: [1, 10]
+    description: "File header and overview"
+
+  root_settings:
+    lines: [11, 43]
+    description: "Root-level settings (movement_allowed)"
+
+  operators:
+    lines: [44, 70]
+    description: "Boolean, comparison, and arithmetic operators"
+
+  resources:
+    lines: [71, 130]
+    description: "Player resources (essence, mana, energy, combo_points, etc.)"
+
+  health:
+    lines: [131, 178]
+    description: "Health conditions (health.pct, health.deficit, time_to_die)"
+
+  buffs:
+    lines: [179, 254]
+    description: "Buff conditions (buff.SPELL.up, .remains, .stack, .refreshable)"
+
+  debuffs:
+    lines: [255, 346]
+    description: "Debuff conditions + Aura properties + Dispel system"
+
+  dots:
+    lines: [539, 573]
+    description: "DoT conditions (dot.SPELL.ticking, active_dot.SPELL)"
+
+  cooldowns:
+    lines: [574, 609]
+    description: "Cooldown conditions (cooldown.SPELL.ready, .remains, .charges)"
+
+  usable_range:
+    lines: [610, 634]
+    description: "Usable and range expressions"
+
+  step_options:
+    lines: [635, 859]
+    description: "Step options (range_check, casting_check, ignore_movement, interrupt, override, etc.)"
+
+  talents:
+    lines: [860, 882]
+    description: "Talent conditions (talent.NAME.enabled, .rank)"
+
+  action_properties:
+    lines: [883, 902]
+    description: "Action/ability properties (action.SPELL.charges, .cast_time)"
+
+  gcd:
+    lines: [903, 919]
+    description: "GCD properties (gcd.remains, gcd.max)"
+
+  previous_cast:
+    lines: [920, 954]
+    description: "Previous cast tracking (prev_gcd.N.SPELL, lastcast.SPELL)"
+
+  player_status:
+    lines: [955, 1023]
+    description: "Player status (moving, casting, combat, empower_stage, burst)"
+
+  loss_of_control:
+    lines: [1024, 1081]
+    description: "Loss of control conditions (stunned, rooted, silenced, feared)"
+
+  player_role:
+    lines: [1082, 1104]
+    description: "Player role checks (tank, healer, dps, melee, ranged)"
+
+  character_stats:
+    lines: [1105, 1128]
+    description: "Character stats (haste_pct, crit_pct, mastery_pct, versa_pct)"
+
+  instance_zone:
+    lines: [1129, 1164]
+    description: "Instance/zone conditions (inraid, inmythicplus, inpvp, keystonelevel)"
+
+  boss_target_validation:
+    lines: [1165, 1201]
+    description: "Boss fight detection and target validation"
+
+  target_conditions:
+    lines: [1202, 1237]
+    description: "Target conditions (range, time_to_die, casting.interruptible)"
+
+  unit_conditions:
+    lines: [1238, 1346]
+    description: "Unit conditions (player, target, focus, mouseover, pet properties)"
+
+  enemy_combat_count:
+    lines: [1347, 1382]
+    description: "Enemy/combat counts (active_enemies, enemies.8y, enemies.combat.40y)"
+
+  healing_targeting:
+    lines: [1383, 1574]
+    description: "Healing targeting system (cycle=, target=, group expressions)"
+
+  aura_points:
+    lines: [1575, 1591]
+    description: "Aura point values (buff.SPELL.points.N)"
+
+  totems:
+    lines: [1592, 1609]
+    description: "Totem conditions (totem.SPELL.up, .remains)"
+
+  equipment:
+    lines: [1610, 1693]
+    description: "Equipment slot conditions (trinket_1, set_bonus, equipped.ID)"
+
+  shared_yaml:
+    lines: [1694, 1827]
+    description: "Shared YAML files (_interrupts, _defensives, _trinkets, _shared)"
+
+  consumables:
+    lines: [1828, 1843]
+    description: "Consumable expressions (healthstone, combat_potion)"
+
+  system_state:
+    lines: [1844, 1884]
+    description: "System state (state.rotation, state.cds, state.aoe) and One Button Assistant"
+
+  user_variables:
+    lines: [1885, 1902]
+    description: "User-defined variables (var.name)"
+
+  config_options:
+    lines: [1903, 1985]
+    description: "User config options (config.name) - sliders, checkboxes, dropdowns, multi_select"
+
+  special_actions:
+    lines: [1986, 2070]
+    description: "Special/virtual actions (trinket_1, healthstone, return, stop_casting)"
+
+  cast_target_modifiers:
+    lines: [2071, 2107]
+    description: "Cast target modifiers (.player, .cursor, .focus, .mouseover)"
+
+  action_lists:
+    lines: [2108, 2169]
+    description: "Action lists (call_action_list, run_action_list, lists:)"
+
+  variables_section:
+    lines: [2170, 2203]
+    description: "Variables section syntax"
+
+  examples_patterns:
+    lines: [2204, 2275]
+    description: "Complete rotation examples and quick reference patterns"
+
+# ============================================================================
+# COMMON LOOKUP COMBINATIONS
+# ============================================================================
+# When looking up specific topics, fetch these sections:
+
+combat_lookups:
+  empowered_spells:
+    - step_options       # ignore_usable, ignore_cooldown, casting_check
+    - player_status      # player.empower_stage
+    
+  healing_rotation:
+    - healing_targeting  # cycle=, target=, group expressions
+    - cast_target_modifiers  # .player, .mouseover
+    
+  cooldown_management:
+    - cooldowns          # cooldown.SPELL properties
+    - step_options       # ignore_cooldown
+    - equipment          # trinket_1.sync
+    
+  aoe_rotation:
+    - enemy_combat_count # active_enemies, enemies.8y
+    - dots               # active_dot.SPELL
+    
+  defensive_handling:
+    - loss_of_control    # stunned, rooted, etc.
+    - player_status      # health.pct
+    - special_actions    # return, stop_casting
+    - equipment          # trinket defensive usage
+    
+  config_setup:
+    - config_options     # Config definition
+    - user_variables     # Variable definition
+    - action_lists       # List structure
+
+# ============================================================================
+# QUICK ACCESS SNIPPETS
+# ============================================================================
+snippets:
+  movement_handling: |
+    movement_allowed: buff.hover.up  # ROOT LEVEL
+    
+  empowered_spell_release: |
+    - fire_breath,ignore_usable=true,ignore_cooldown=true,casting_check=fire_breath,if=player.empower_stage>=2
+    
+  hero_talent_detection: |
+    variables:
+      is_flameshaper: talent.flameshaper
+      is_scalecommander: talent.scalecommander
+    
+  config_dropdown: |
+    config:
+      rotation_profile:
+        type: dropdown
+        options:
+          - label: "Profile 1"
+            value: 1
+          - label: "Profile 2"
+            value: 2
+        default: 0
+    
+  main_list_entry: |
+    lists:
+      main:  # Auto-executed, no call needed
+        - return,if=player.dead
+        - call_action_list,name=actual_rotation
+    
+  spell_morphs: |
+    # When a spell transforms into another, use override
+    - azure_sweep,override=azure_strike,if=buff.azure_sweep.up
+    
+  validation_checklist: |
+    [ ] Checked morph_database/{class}_morphs.yaml for spell transforms
+    [ ] movement_allowed at ROOT level
+    [ ] main list not explicitly called
+    [ ] Using '=' not '==' for equality
+    [ ] Parentheses for & | precedence
+    [ ] Empowered spells: ignore_usable + ignore_cooldown + casting_check
+    [ ] Spell morphs use override=base_spell (checked database!)
+    [ ] Non-main lists called via call_action_list
+    [ ] config.X for config, var.X for variables
+
+# ============================================================================
+# USAGE NOTES
+# ============================================================================
+# 1. Start with QUICK_REFERENCE.yaml for common patterns
+# 2. Use this index to fetch specific sections from reference_guide.yaml
+# 3. Update this index if you modify reference_guide.yaml line numbers
+# 4. The 'snippets' section provides copy-paste templates for common patterns
+# ============================================================================

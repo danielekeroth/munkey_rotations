@@ -1,0 +1,13 @@
+# Evoker Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/evoker.txt
+# Generated: 2026-02-06T08:45:27.744611
+
+evoker:
+  # Azure Sweep overrides Azure Strike
+  - override_spell: Azure Sweep
+    override_id: 1265871
+    base_spell: Azure Strike
+    base_id: 362969
+    trigger: buff.azure_sweep.up
+    usage: "Azure Sweep,override=Azure Strike,if=buff.azure_sweep.up"

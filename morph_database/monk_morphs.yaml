@@ -1,0 +1,21 @@
+# Monk Spell Morphs
+# Auto-generated from SimC spell data dump
+# Source: https://raw.githubusercontent.com/simulationcraft/simc/refs/heads/midnight/SpellDataDump/monk.txt
+# Generated: 2026-02-06T08:45:29.146721
+
+monk:
+  # Unity Within overrides Celestial Conduit
+  - override_spell: Unity Within
+    override_id: 443592
+    base_spell: Celestial Conduit
+    base_id: 443028
+    trigger: buff.unity_within.up
+    usage: "Unity Within,override=Celestial Conduit,if=buff.unity_within.up"
+
+  # Mighty Stomp overrides Invoke Niuzao, the Black Ox
+  - override_spell: Mighty Stomp
+    override_id: 1242270
+    base_spell: Invoke Niuzao, the Black Ox
+    base_id: 132578
+    trigger: buff.mighty_stomp.up
+    usage: "Mighty Stomp,override=Invoke Niuzao, the Black Ox,if=buff.mighty_stomp.up"

@@ -5,7 +5,8 @@ version: "1.0.0"
 spec: 72
 name: "Fury Warrior - Multi-Profile"
 description: "WoWHead vs Method.gg vs Icy Veins profiles with Slayer/Mountain Thane hero talent detection"
-author: "munkey"
+author: "Munkey"
+blocked: true
 date: "2026-02-06"
 patch: "12.0"
 
@@ -92,9 +93,11 @@ lists:
   # MAIN ENTRY POINT - Auto-executed
   # ========================================================================
   main:
-    # Sanity checks
-    - return,if=player.dead
-    - return,if=!state.rotation
+    - return,if=player.dead|!state.rotation|state.blocked_inputs|mounted|!player.combat
+    - call_action_list,name=sanity_checks
+    - call_action_list,name=auto_heal
+    - call_action_list,name=auto_target
+    - call_action_list,name=spell_queue
 
     # Target acquisition
     - attack_target,if=!target.exists&target.alive&target.enemy
@@ -114,7 +117,8 @@ lists:
     - call_action_list,name=icyveins_aoe,if=config.rotation_profile=3&active_enemies>=config.aoe_threshold
 
     # Default fallback (Icy Veins ST)
-    - call_action_list,name=icyveins_st
+    - call_action_list,name=method_st,if=enemies.combat.8y=1
+    - call_action_list,name=method_aoe,if=enemies.combat.8y>1
 
   # ========================================================================
   # DEFENSIVES - Survival Actions
