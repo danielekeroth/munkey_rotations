@@ -160,8 +160,8 @@ lists:
     
     # 6. Doom Winds
     - doom_winds,if=target.distance<8
-    - trinket_1,if=trinket_1.sync&state.cds
-    - trinket_2,if=trinket_2.sync&state.cds
+    - trinket_1,if=trinket_1.usable&trinket_1.ready&state.cds
+    - trinket_2,if=trinket_2.usable&trinket_2.ready&state.cds
     
     # 7. Primordial Storm (10 stacks)
     - primordial_storm,override=sundering,if=buff.primordial_storm.up&buff.maelstrom_weapon.stack>=10
