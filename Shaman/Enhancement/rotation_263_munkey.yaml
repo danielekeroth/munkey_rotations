@@ -3,7 +3,7 @@
 # ============================================================================
 version: "1.0.0"
 spec: 263  # Enhancement Shaman
-name: "Gemini Enhancement"
+name: "Enhancement"
 description: "Optimized for Midnight Pre-Patch with Hero Talent support"
 author: "Munkey"
 date: "2026-02-06"
