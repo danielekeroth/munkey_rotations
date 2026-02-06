@@ -1,0 +1,428 @@
+# ============================================================================
+# FERAL DRUID ROTATION - Multi-Profile (WoWHead / Icy Veins / Method.gg)
+# ============================================================================
+# version: "1.0.0"
+# spec: 103                           # Feral Druid
+# name: "Feral Druid - Multi-Profile"
+# description: "WoWHead vs Icy Veins vs Method.gg profiles with hero talent detection"
+# author: "kimi"
+# date: "2026-02-06"
+# patch: "12.0"
+# ============================================================================
+
+version: "1.0.0"
+spec: 103
+name: "Feral Druid - Multi-Profile"
+description: "WoWHead vs Icy Veins vs Method.gg profiles with Druid of the Claw/Wildstalker detection"
+author: "kimi"
+date: "2026-02-06"
+patch: "12.0"
+
+# ----------------------------------------------------------------------------
+# ROOT LEVEL: Movement handling (NOT in variables section!)
+# ----------------------------------------------------------------------------
+# Feral is melee with mostly instant casts, but has some casts during Convoke
+movement_allowed: true
+
+# ----------------------------------------------------------------------------
+# CONFIG: User settings UI
+# ----------------------------------------------------------------------------
+config:
+  # Profile selection (different guide sources)
+  rotation_profile:
+    type: dropdown
+    options:
+      - label: "WoWHead (Guiltyas)"
+        value: wowhead
+      - label: "Icy Veins"
+        value: icyveins
+      - label: "Method.gg (Cheesey)"
+        value: method
+    default: 0
+
+  # AOE threshold for switching to AOE rotation
+  aoe_threshold:
+    type: slider
+    min: 2
+    max: 8
+    value: 3
+
+  # Defensive abilities toggle
+  use_defensives:
+    type: checkbox
+    value: true
+
+  # Hero talent override
+  hero_talent_mode:
+    type: dropdown
+    options:
+      - label: "Auto (Detect)"
+        value: auto
+      - label: "Druid of the Claw"
+        value: claw
+      - label: "Wildstalker"
+        value: wildstalker
+    default: 0
+
+  # Lunar Inspiration toggle (affects Moonfire usage)
+  use_lunar_inspiration:
+    type: checkbox
+    value: true
+
+# ----------------------------------------------------------------------------
+# VARIABLES: Reusable expressions
+# ----------------------------------------------------------------------------
+variables:
+  # Hero talent detection
+  is_claw: talent.druid_of_the_claw
+  is_wildstalker: talent.wildstalker
+
+  # Hero talent selection (config override or auto-detect)
+  use_claw: (config.hero_talent_mode=auto&var.is_claw)|(config.hero_talent_mode=claw)
+  use_wildstalker: (config.hero_talent_mode=auto&var.is_wildstalker)|(config.hero_talent_mode=wildstalker)
+
+  # Profile selection variables
+  use_wowhead: config.rotation_profile=wowhead
+  use_icyveins: config.rotation_profile=icyveins
+  use_method: config.rotation_profile=method
+
+  # AOE detection
+  use_aoe: active_enemies>=config.aoe_threshold
+
+  # Combo Points at max
+  cp_max: combo_points=combo_points.max
+  cp_5: combo_points>=5
+
+  # Energy thresholds
+  energy_50: energy>=50
+  energy_low: energy<40
+  energy_time_to_max: energy.time_to_max<3
+
+  # Cooldown windows
+  in_berserk: buff.berserk.up
+  in_tigers_fury: buff.tigers_fury.up
+
+  # Pandemic windows (with Circle of Life and Death)
+  # Rip: 5.8s, Rake: 3.6s, Moonfire: 4.3s
+  rip_refreshable: debuff.rip.remains<5.8
+  rake_refreshable: debuff.rake.remains<3.6
+  moonfire_refreshable: debuff.moonfire.remains<4.3
+
+  # Execute phase
+  in_execute: target.health.pct<20
+
+  # Pooling for cooldowns
+  pool_for_tigers_fury: cooldown.tigers_fury.remains<3&energy.deficit>30
+  pool_for_berserk: cooldown.berserk.remains<5&energy.deficit>50
+
+# ----------------------------------------------------------------------------
+# LISTS: Action lists
+# ----------------------------------------------------------------------------
+lists:
+  # ========================================================================
+  # MAIN ENTRY POINT (Auto-executed - NO explicit call needed!)
+  # ========================================================================
+  main:
+    # Sanity checks
+    - return,if=player.dead
+    - return,if=!player.combat&!target.combat
+
+    # Defensive handling
+    - call_action_list,name=defensives,if=config.use_defensives
+
+    # Interrupts
+    - call_action_list,name=interrupts
+
+    # Cooldown management
+    - call_action_list,name=cooldowns
+
+    # Profile routing - WoWHead
+    - call_action_list,name=wowhead_st,if=var.use_wowhead&!var.use_aoe
+    - call_action_list,name=wowhead_aoe,if=var.use_wowhead&var.use_aoe
+
+    # Profile routing - Icy Veins
+    - call_action_list,name=icyveins_st,if=var.use_icyveins&!var.use_aoe
+    - call_action_list,name=icyveins_aoe,if=var.use_icyveins&var.use_aoe
+
+    # Profile routing - Method.gg
+    - call_action_list,name=method_st,if=var.use_method&!var.use_aoe
+    - call_action_list,name=method_aoe,if=var.use_method&var.use_aoe
+
+  # ========================================================================
+  # DEFENSIVES (Shared across all profiles)
+  # ========================================================================
+  defensives:
+    - barkskin,if=health.pct<50&!buff.barkskin.up
+    - survival_instincts,if=health.pct<30&!buff.survival_instincts.up
+    - renewal,if=talent.renewal&health.pct<40
+    - regrowth,if=health.pct<60&!buff.regrowth.up
+
+  # ========================================================================
+  # INTERRUPTS
+  # ========================================================================
+  interrupts:
+    - skull_bash,if=target.casting.interruptible&interrupts.target.ready
+    - mighty_bash,if=talent.mighty_bash&target.casting.interruptible&!cooldown.skull_bash.ready
+    - typhoon,if=talent.typhoon&target.casting.interruptible&!cooldown.skull_bash.ready
+
+  # ========================================================================
+  # COOLDOWNS (Shared across all profiles)
+  # ========================================================================
+  cooldowns:
+    # Tiger's Fury on CD - aim for 5 CP or low energy
+    - tigers_fury,if=(var.cp_5|energy<50)&!buff.tigers_fury.up
+
+    # Berserk on CD, synced with Tiger's Fury
+    - berserk,if=cooldown.tigers_fury.remains<3|buff.tigers_fury.up
+
+    # Convoke - always with Berserk + Tiger's Fury
+    - convoke_the_spirits,if=buff.berserk.up&buff.tigers_fury.up&debuff.rip.remains>5
+
+    # Feral Frenzy - sync with Tiger's Fury, low CP
+    - feral_frenzy,if=cooldown.tigers_fury.remains<3|buff.tigers_fury.up|combo_points<3
+
+    # Trinkets
+    - trinket_1,if=trinket_1.sync&(buff.berserk.up|buff.tigers_fury.up)
+    - trinket_2,if=trinket_2.sync&(buff.berserk.up|buff.tigers_fury.up)
+
+  # ========================================================================
+  # WOWHEAD - SINGLE TARGET
+  # Based on: https://www.wowhead.com/guide/classes/druid/feral/rotation-cooldowns-pve-dps
+  # Focus: Optimized snapshotting, strict Tiger's Fury alignment
+  # ========================================================================
+  wowhead_st:
+    # 1. Apex Predator proc - consume immediately
+    - ravage,override=ferocious_bite,if=buff.apex_predators_craving.up
+    - ferocious_bite,if=buff.apex_predators_craving.up
+
+    # 2. Tiger's Fury on CD (already in cooldowns, but check for snap opportunities)
+    - tigers_fury,if=energy.deficit>50&!buff.tigers_fury.up
+
+    # 3. Maintain Rip with 5 CP, snapshot with Tiger's Fury
+    - rip,if=var.cp_5&(debuff.rip.down|var.rip_refreshable)&(buff.tigers_fury.up|debuff.rip.remains<3)
+
+    # 4. Ferocious Bite/Ravage with 5 CP and Rip up, 50+ energy
+    - ravage,override=ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>5&!buff.apex_predators_craving.up
+    - ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>5
+
+    # 5. Feral Frenzy on CD
+    - feral_frenzy,if=combo_points<3
+
+    # 6. Chomp on CD - dump energy before use
+    - chomp,if=cooldown.chomp.ready&energy<50
+
+    # 7. Shred with Sudden Ambush
+    - shred,if=buff.sudden_ambush.up
+
+    # 8. Maintain Rake
+    - rake,if=debuff.rake.down|var.rake_refreshable
+
+    # 9. Maintain Moonfire (if Lunar Inspiration)
+    - moonfire,if=talent.lunar_inspiration&(debuff.moonfire.down|var.moonfire_refreshable)
+
+    # 10. Builder
+    - shred
+
+  # ========================================================================
+  # WOWHEAD - AOE
+  # ========================================================================
+  wowhead_aoe:
+    # 1. Apex Predator proc
+    - ravage,override=ferocious_bite,if=buff.apex_predators_craving.up
+    - ferocious_bite,if=buff.apex_predators_craving.up
+
+    # 2. Primal Wrath to maintain Rip on all targets
+    - primal_wrath,if=var.cp_5&debuff.rip.remains<5.8
+
+    # 3. Tiger's Fury
+    - tigers_fury,if=energy.deficit>50&!buff.tigers_fury.up
+
+    # 4. Berserk/Convoke handled in cooldowns
+
+    # 5. Ferocious Bite at 5 CP when Rip healthy
+    - ravage,override=ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>5&active_enemies<4
+    - ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>5&active_enemies<4
+
+    # 6. Frantic Frenzy (AOE version)
+    - frantic_frenzy,if=talent.frantic_frenzy&combo_points<3
+
+    # 7. Chomp
+    - chomp,if=cooldown.chomp.ready&energy<50
+
+    # 8. Swipe for CP generation
+    - swipe,if=active_enemies>=2
+
+    # 9. Rake on priority targets
+    - rake,if=debuff.rake.down|var.rake_refreshable
+
+    # 10. Moonfire on priority targets
+    - moonfire,if=talent.lunar_inspiration&(debuff.moonfire.down|var.moonfire_refreshable)
+
+    # 11. Builder
+    - shred
+
+  # ========================================================================
+  # ICY VEINS - SINGLE TARGET
+  # Based on: https://www.icy-veins.com/wow/feral-druid-pve-dps-rotation-cooldowns-abilities
+  # Focus: Beginner-friendly, steady rotation
+  # ========================================================================
+  icyveins_st:
+    # 1. Apex Predator proc
+    - ravage,override=ferocious_bite,if=buff.apex_predators_craving.up
+    - ferocious_bite,if=buff.apex_predators_craving.up
+
+    # 2. Tiger's Fury on CD
+    - tigers_fury,if=!buff.tigers_fury.up
+
+    # 3. Berserk on CD with Tiger's Fury
+    - berserk,if=buff.tigers_fury.up|cooldown.tigers_fury.remains>10
+
+    # 4. Convoke with cooldowns
+    - convoke_the_spirits,if=buff.berserk.up&buff.tigers_fury.up
+
+    # 5. Rip maintenance - 5 CP, snapshot with Tiger's Fury
+    - rip,if=var.cp_5&(debuff.rip.down|var.rip_refreshable)
+
+    # 6. Ferocious Bite - don't downgrade snapshot
+    - ravage,override=ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>5.8
+    - ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>5.8
+
+    # 7. Feral Frenzy on CD
+    - feral_frenzy,if=combo_points<3
+
+    # 8. Chomp
+    - chomp,if=cooldown.chomp.ready
+
+    # 9. Rake maintenance
+    - rake,if=debuff.rake.down|var.rake_refreshable
+
+    # 10. Moonfire
+    - moonfire,if=talent.lunar_inspiration&(debuff.moonfire.down|var.moonfire_refreshable)
+
+    # 11. Shred
+    - shred,if=buff.sudden_ambush.up
+    - shred
+
+  # ========================================================================
+  # ICY VEINS - AOE
+  # ========================================================================
+  icyveins_aoe:
+    # 1. Apex Predator
+    - ravage,override=ferocious_bite,if=buff.apex_predators_craving.up
+    - ferocious_bite,if=buff.apex_predators_craving.up
+
+    # 2. Primal Wrath for Rip maintenance
+    - primal_wrath,if=var.cp_5&debuff.rip.remains<5.8
+
+    # 3. Tiger's Fury
+    - tigers_fury,if=!buff.tigers_fury.up
+
+    # 4. Berserk
+    - berserk,if=buff.tigers_fury.up|cooldown.tigers_fury.remains>10
+
+    # 5. Convoke
+    - convoke_the_spirits,if=buff.berserk.up&buff.tigers_fury.up&debuff.rip.remains>5
+
+    # 6. Frantic Frenzy
+    - frantic_frenzy,if=talent.frantic_frenzy&combo_points<3
+
+    # 7. Ferocious Bite weave at 5 CP
+    - ravage,override=ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>5&active_enemies<4
+    - ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>5&active_enemies<4
+
+    # 8. Chomp
+    - chomp,if=cooldown.chomp.ready
+
+    # 9. Swipe for AOE
+    - swipe
+
+  # ========================================================================
+  # METHOD.GG - SINGLE TARGET
+  # Based on: https://www.method.gg/guides/feral-druid/playstyle-and-rotation
+  # Focus: Dynamic weaving, Panther's Guile proc reactions
+  # ========================================================================
+  method_st:
+    # Panther's Guile awareness - watch for procs and weave extra finishers
+
+    # 1. Apex Predator proc
+    - ravage,override=ferocious_bite,if=buff.apex_predators_craving.up
+    - ferocious_bite,if=buff.apex_predators_craving.up
+
+    # 2. Tiger's Fury - aim to be at low energy
+    - tigers_fury,if=energy<40&!buff.tigers_fury.up
+
+    # 3. Rip with Tiger's Fury snapshot
+    - rip,if=var.cp_5&(debuff.rip.down|var.rip_refreshable)&buff.tigers_fury.up
+    - rip,if=var.cp_5&debuff.rip.remains<3
+
+    # 4. Ferocious Bite - weave when Rip has healthy duration
+    - ravage,override=ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>8
+    - ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>8
+
+    # 5. Feral Frenzy
+    - feral_frenzy,if=combo_points<3&!var.cp_max
+
+    # 6. Chomp - deplete energy before use
+    - chomp,if=cooldown.chomp.remains<2&energy<50
+    - chomp,if=cooldown.chomp.ready
+
+    # 7. Shred for Panther's Guile procs - don't blindly spam
+    - shred,if=buff.sudden_ambush.up
+    - shred,if=combo_points<4
+
+    # 8. Rake
+    - rake,if=debuff.rake.down|var.rake_refreshable
+
+    # 9. Moonfire
+    - moonfire,if=talent.lunar_inspiration&(debuff.moonfire.down|var.moonfire_refreshable)
+
+    # 10. Fallback
+    - shred
+
+  # ========================================================================
+  # METHOD.GG - AOE
+  # ========================================================================
+  method_aoe:
+    # 1. Apex Predator
+    - ravage,override=ferocious_bite,if=buff.apex_predators_craving.up
+    - ferocious_bite,if=buff.apex_predators_craving.up
+
+    # 2. Primal Wrath - upgrade snapshots with Tiger's Fury
+    - primal_wrath,if=var.cp_5&buff.tigers_fury.up&(debuff.rip.remains<5.8|debuff.rip.remains<15)
+    - primal_wrath,if=var.cp_5&debuff.rip.remains<3
+
+    # 3. Tiger's Fury
+    - tigers_fury,if=energy<40&!buff.tigers_fury.up
+
+    # 4. Berserk
+    - berserk,if=buff.tigers_fury.up
+
+    # 5. Convoke
+    - convoke_the_spirits,if=buff.berserk.up&buff.tigers_fury.up&debuff.rip.remains>5
+
+    # 6. Frantic Frenzy
+    - frantic_frenzy,if=talent.frantic_frenzy&combo_points<3
+
+    # 7. Ferocious Bite weave
+    - ravage,override=ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>5&active_enemies<4
+    - ferocious_bite,if=var.cp_5&var.energy_50&debuff.rip.remains>5&active_enemies<4
+
+    # 8. Chomp
+    - chomp,if=cooldown.chomp.ready
+
+    # 9. Rake spreading with Double-Clawed Rake (Wildstalker)
+    - rake,if=talent.double_clawed_rake&(debuff.rake.down|var.rake_refreshable)
+
+    # 10. Swipe
+    - swipe,if=active_enemies>=2
+
+    # 11. Moonfire on priority
+    - moonfire,if=talent.lunar_inspiration&(debuff.moonfire.down|var.moonfire_refreshable)
+
+    # 12. Fallback
+    - shred
+
+# ----------------------------------------------------------------------------
+# ACTIONS: Alternative entry point (not used - we use lists.main)
+# ----------------------------------------------------------------------------
+# Note: Using lists.main as the auto-executed entry point above
