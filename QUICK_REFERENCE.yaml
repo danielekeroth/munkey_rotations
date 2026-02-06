@@ -286,6 +286,9 @@
 # ----------------------------------------------------------------------------
 # TRINKETS & EQUIPMENT
 # ----------------------------------------------------------------------------
+# ⚠️ IMPORTANT: When adding trinkets into the rotation you need to check if
+#    trinket is usable by trinket_1.usable & trinket_1.ready for trinket_1
+#    and trinket_2.usable & trinket_2.ready for trinket_2
 # Trinkets:  trinket_1.ready, trinket_1.sync, trinket_1.cd
 # Slots:     weapon.ready, helm.ready, belt.ready, etc.
 # Tier:      set_bonus.TIER_NAME_2pc, set_bonus.TIER_NAME_4pc
